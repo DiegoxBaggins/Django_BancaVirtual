@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+	{% load static %}
+  <link rel="stylesheet" href="{%static 'css/styleLogin.css' %}">
+  <title>Ingreso</title>
+</head>
+<body>
+  <div class="divs-Principales">
+    <h4 class="titulos-princ">Bienvenido al Banco El Ahorro</h4>
+    <br>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <br>
+      <button class="botons" type="submit" value="Ingresar" name="Ingresar">Ingresar</button>
+    </form>
+    {{ mensaje }}
+    <img src='../statics/images/empire-logo.png' width="200px" height="200px">
+  </div>
+</body>
+</html>

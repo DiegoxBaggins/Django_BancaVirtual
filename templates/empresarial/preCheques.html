@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+ {% load static %}
+  <link rel="stylesheet" href="{%static 'css/styleCheques.css' %}">
+  <title>Preautorizar Cheques</title>
+</head>
+<header class="divs-Header">
+  <div class="divs-logins">
+        <a class="titulos-header" href="{% url 'inicioEmpresarial' %}">Menu principal</a>
+    <a class="titulos-header" href="{% url 'index1' %}"> Salir</a>
+  </div>
+</header> 
+<body>
+  <div class="div-Global">
+    <div class="divs-Principales">
+      <h4 class="titulos-princ">Pre-autorizar Cheque</h4>
+    </div>
+    <div class="divs-derecha">
+      <form method="post">
+        {% csrf_token %}
+        <h4 class="letra-elementos">Cuenta de origen</h4>
+        <br>
+        {{ form.as_p }}
+        <br>
+        <button class="boton-bloq" type="submit" value="Crear">Pre-autorizar</button>
+      </form>
+      <h4 class="letra-elementos">{{ mensaje }}</h4>
+    </div>
+  </div>
+</body>
+  <footer class="footer">
+  <h4 class="letra-elementos">Banco El Ahorro - 2020</h4>
+  </footer>
+</html>

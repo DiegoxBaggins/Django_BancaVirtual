@@ -1,0 +1,60 @@
+<meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+{% load static %}
+  <link rel="stylesheet" href="{%static 'css/styleProveedores.css' %}">
+  <title>Pagar Proveedores</title>
+</head>
+<header class="divs-Header">
+  <div class="divs-logins">
+    <h4 class="titulos-header">Pantalla Principal  -  Salir</h4>
+  </div>
+</header>
+<body>
+  <div class="div-Global">
+    <div class="divs-Principales">
+      <h4 class="titulos-princ">Pagar a Proveedores</h4>
+    </div>
+    <div class="divs-izquierda">
+      <h4 class="titulos-princ">Opciones</h4>
+      <br>
+      <input class="botons" type="submit" value="Pagar a Proveedor">
+      <input class="botons" type="submit" value="Programar Pago">
+    </div>
+    <div class="divs-derecha">
+      <h4 class="titulos-princ">Programar Pago</h4>
+      <br>
+      <h4 class="letra-elementos">Cuenta de origen</h4>
+      <br>
+      <select name="select" class="boxes">
+        <option value="value2" selected>Cuenta de ahorro 14BDGYR741F - Q4500.12</option>
+        <option value="value3">Cuentas de ahorro 54BDGER128G - Q12452.65</option>
+      </select>
+      <br>
+      <h4 class="letra-elementos">Monto</h4>
+      <br>
+      <input class="text-box" type="text" name="User" id="User" placeholder="Ingrese el monto a Transferir Q0.00">
+      <br>
+      <br>
+      <h4 class="letra-elementos">Cuenta de destino</h4>
+      <br>
+      <select name="select" class="boxes">
+        <option value="value1">Cuentas monetaria 14BDSFE741F - Juan Garcia</option>
+        <option value="value2" selected>Cuentas de ahorro 54BDFE2438G - Erick Castro</option>
+      </select>
+      <br>
+      <h4 class="letra-elementos">Opciones de pago</h4>
+      <br>
+      <select name="select" class="boxes">
+        <option value="value1" selected>Quincenalmente</option>
+        <option value="value2">Mensualmente</option>
+      </select>
+      <br>
+      <input class="boton-bloq" type="submit" value="Programar">
+    </div>
+  </div>
+</body>
+  <footer class="footer">
+  <h4 class="letra-elementos">Banco El Ahorro - 2020</h4>
+  </footer>
+</html>

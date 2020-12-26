@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+ {% load static %}
+  <link rel="stylesheet" href="{%static 'css/stylePrestamo.css' %}">
+  <title>Solicitar Prestamo</title>
+</head>
+<header class="divs-Header">
+  <div class="divs-logins">
+    <h4 class="titulos-header">Pantalla Principal  -  Salir</h4>
+  </div>
+</header> 
+<body>
+  <div class="div-Global">
+    <div class="divs-Principales">
+      <h4 class="titulos-princ">Solicitar Prestamo</h4>
+    </div>
+    <div class="divs-derecha">
+      <h4 class="titulos-princ">Formulario de Prestamo</h4>
+      <br>
+      <h4 class="letra-elementos">Monto:</h4>
+      <br>
+      <input class="text-box" type="text" name="User" id="User" placeholder="Ingrese monto deseado">
+      <br>
+      <h4 class="letra-elementos">Plazo:</h4>
+      <br>
+      <select name="select" class="boxes">
+        <option value="value1" selected>9 meses</option>
+        <option value="value2">12 meses</option>
+        <option value="value3">15 meses</option>
+        <option value="value4">18 meses</option>
+        <option value="value5">24 meses</option>
+      </select>
+      <br>
+      <h4 class="letra-elementos">Forma de pago:</h4>
+      <br>
+      <select name="select" class="boxes">
+        <option value="value1" selected>Semanalmente</option>
+        <option value="value2">Quincenalmente</option>
+        <option value="value3">Mensualmente</option>
+      </select>
+      <br>
+      <h4 class="letra-elementos">Persona de Referencia</h4>
+      <br>
+      <input class="text-box" type="text" name="User" id="User" placeholder="Nombre">
+      <br>
+      <input class="boton-bloq" type="submit" value="Solicitar">
+    </div>
+  </div>
+</body>
+  <footer class="footer">
+  <h4 class="letra-elementos">Banco El Ahorro - 2020</h4>
+  </footer>
+</html>

@@ -1,0 +1,125 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-image: url('../images/fondoPrestamo.png');
+  background-size: 100%;
+}
+
+.divs-Header {
+  height: 30px;
+  width: 100%;
+  background: gray;
+  padding: 5px;
+  margin: auto;
+}
+
+.divs-logins {
+  width: 90%;
+  background:gray;
+  margin: auto;
+  margin-right: 5%;
+  margin-left: 5%;
+}
+
+.divs-Principales {
+  width: 40%;
+  background: #85C1E9;
+  padding: 10px;
+  margin: auto;
+  margin-top: 25px;
+  border-radius: 4px;
+  box-shadow: 7px 13px 37px #000;
+}
+
+
+.divs-derecha {
+  width: 70%;
+  height: 550px;
+  background: #2471A3;
+  padding: 30px;
+  margin: auto;
+  margin-left: 15%;
+  margin-top: 25px;
+  float: left;
+  align-items: left;
+}
+
+.div-Global {
+  width: 100%;
+  height: 675px;
+  margin: auto;
+}
+
+.titulos-princ {
+  font-family: 'Bookman';
+  color: black;
+  text-align: center;
+  font-size: 40px;
+}
+
+.letra-elementos {
+  font-family: 'Times New Roman';
+  color: black;
+  text-align: left;
+  font-size: 20px;
+}
+
+.titulos-header {
+  font-family: 'Times New Roman';
+  color: black;
+  text-align: right;
+  font-size: 20px;
+}
+
+.botons {
+  width: 100%;
+  background: #900C3F;
+  border: none;
+  padding: 12px;
+  color: white;
+  margin: 16px 0;
+  font-size: 16px;
+}
+
+.boton-bloq {
+  width: 35%;
+  background: #900C3F;
+  border: none;
+  padding: 12px;
+  color: white;
+  margin: 16px 0;
+  font-size: 16px;
+}
+
+.text-box {
+  width: 40%;
+  background: #C8C8C8;
+  padding: 2px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  border: 1px solid black;
+  font-family: 'calibri';
+  font-size: 18px;
+  color: black;
+}
+
+.boxes {
+  width: 60%;
+  background: #C8C8C8;
+  padding: 2px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  border: 1px solid black;
+  font-family: 'calibri';
+  font-size: 18px;
+  color: black;
+}
+
+.footer {
+  background: gray;
+  padding: 5px;
+}

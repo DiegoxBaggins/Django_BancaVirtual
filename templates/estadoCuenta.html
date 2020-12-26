@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  {% load static %}
+  <link rel="stylesheet" href="{%static 'css/styleEstadoC.css' %}">
+  <title>Estado de Cuentas</title>
+</head>
+<header class="divs-Header">
+  <div class="divs-logins">
+    <a class="titulos-header" href="{% url 'inicioNormal' %}">Menu principal</a>
+    <a class="titulos-header" href="{% url 'index1' %}"> Salir</a>
+  </div>
+</header>
+<body>
+<div class="div-Global">
+    <div class="divs-Principales">
+      <h4 class="titulos-princ">Cuentas en el Banco El Ahorro</h4>
+    </div>
+  <form method="post">
+        {% csrf_token %}
+      <div class="divs-izquierda">
+        <h4 class="titulos-princ">Cuentas</h4>
+        <br>
+        <button class="botons" type="submit" value="Monetaria" name="Ingresar">Monetarias</button>
+        <button class="botons" type="submit" value="Ahorro" name="Ingresar">Ahorro</button>
+        <button class="botons" type="submit" value="Plazo" name="Ingresar">Ahorro a Plazo Fijo</button>
+      </div>
+      <div class="divs-derecha">
+          <h4 class="letra-elementos">Nombre: {{ nombre }}</h4>
+        <h4 class="letra-elementos">CUI: {{ cui }}</h4>
+        <h4 class="letra-elementos">NIT: {{ nit }}</h4>
+         <h4 class="letra-elementos">Direccion: {{ direccion }}</h4>
+          <h4 class="titulos-princ">{{ titulo }}</h4>
+        <br>
+        {% for codigo, tipo, nombre, moneda, monto, estado, boton in cuentas %}
+        <h4 class="letra-elementos">Cuenta tipo: {{ tipo }} codigo: {{ codigo }}</h4>
+        <br>
+        <h4 class="letra-elementos">{{ nombre }}</h4>
+        <br>
+        <h4 class="letra-elementos">Salto Disponible: {{ moneda }} {{ monto }}</h4>
+        <br>
+        <h4 class="letra-elementos">Estado: {{ estado }}</h4>
+        <button class="boton-bloq" type="submit" value= "{{ codigo }}" name="Bloqueo">{{ boton }}</button>
+        <button class="boton-bloq" type="submit" value= "{{ codigo }}" name="Historial">Historial</button>
+        <br>
+        {% endfor%}
+      </div>
+  </form>
+</div>
+</body>
+<footer class="footer">
+  <h4 class="letra-elementos">Banco El Ahorro - 2020</h4>
+</footer>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+{% load static %}
+  <link rel="stylesheet" href="{%static 'css/styleInicio.css' %}">
+  <title>Inicio</title>
+</head>
+<body>
+  <div class="divs-Header">
+    <div class="divs-logins">
+       <a class="titulos-header" href="{% url 'index1' %}"> Salir</a>
+    </div>
+  </div>
+  <div class="divs-Principales">
+    <h4 class="titulos-princ">Bienvenido al Banco El Ahorro</h4>
+  </div>
+  <form method="post">
+     {% csrf_token %}
+    <div class="divs-Principales divs-inicio">
+      <h4 class="titulos-princ">Mostrar estado de cuentas</h4>
+      <br>
+      <button class="botons" type="submit" value="Estado" name="Ingresar">Ingresar</button>
+    </div>
+    <div class="divs-Principales divs-inicio">
+      <h4 class="titulos-princ">Realizar Transferencia</h4>
+      <br>
+      <button class="botons" type="submit" value="Transferencia" name="Ingresar">Ingresar</button>
+    </div>
+    <div class="divs-Principales divs-inicio">
+      <h4 class="titulos-princ">Registrar nueva cuenta</h4>
+      <br>
+      <button class="botons" type="submit" value="Terceros" name="Ingresar">Ingresar</button>
+    </div>
+    <div class="divs-Principales divs-inicio">
+      <h4 class="titulos-princ">Solicitar Prestamo</h4>
+      <br>
+      <button class="botons" type="submit" value="Prestamo" name="Ingresar">Ingresar</button>
+    </div>
+    <div class="divs-Principales divs-inicio">
+      <h4 class="titulos-princ">Realizar Pago de Servicios</h4>
+      <br>
+      <button class="botons" type="submit" value="Servicios" name="Ingresar">Ingresar</button>
+    </div>
+    <div class="divs-Principales divs-inicio">
+      <h4 class="titulos-princ">Preautorizar Cheque</h4>
+      <br>
+      <button class="botons" type="submit" value="Preautorizar" name="Ingresar">Ingresar</button>
+    </div>
+    <div class="divs-Principales divs-inicio">
+      <h4 class="titulos-princ">Pagar Planilla</h4>
+      <br>
+      <button class="botons" type="submit" value="Planilla" name="Ingresar">Ingresar</button>
+    </div>
+    <div class="divs-Principales divs-inicio">
+      <h4 class="titulos-princ">Pagar a Proveedores</h4>
+      <br>
+      <button class="botons" type="submit" value="Proveedor" name="Ingresar">Ingresar</button>
+    </div>
+  </form>
+</body>
+</html>

@@ -1,0 +1,72 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-image: url('../images/fondoEspacio.jpg');
+  background-size: 100%;
+}
+
+.divs-Principales {
+  width: 40%;
+  background: white;
+  padding: 30px;
+  margin: auto;
+  margin-top: 75px;
+  border-radius: 4px;
+  box-shadow: 7px 13px 37px #000;
+}
+
+.divs-inicio {
+  float: left;
+  margin-right: 5%;
+  margin-left: 5%;
+}
+
+.divs-Header {
+  height: 30px;
+  width: 100%;
+  background: gray;
+  padding: 5px;
+  margin: auto;
+}
+
+.divs-logins {
+  width: 90%;
+  background:gray;
+  margin: auto;
+  margin-right: 5%;
+  margin-left: 5%;
+}
+
+.titulos-princ {
+  font-family: 'Bookman';
+  color: black;
+  text-align: center;
+  font-size: 40px;
+}
+
+.titulos-header {
+  font-family: 'Times New Roman';
+  color: black;
+  text-align: right;
+  font-size: 20px;
+}
+
+.botons {
+  width: 100%;
+  background: #900C3F;
+  border: none;
+  padding: 12px;
+  color: white;
+  margin: 16px 0;
+  font-size: 16px;
+}
+
+
+img{
+display:block;
+margin:auto;
+}

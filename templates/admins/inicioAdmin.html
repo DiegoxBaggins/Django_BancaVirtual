@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+ {% load static %}
+  <link rel="stylesheet" href="{%static 'css/styleInicio.css' %}">
+  <title>Inicio</title>
+</head>
+<header class="divs-Header">
+  <div class="divs-logins">
+    <a class="titulos-header" href="{% url 'index' %}"> Salir</a>
+  </div>
+</header>
+<body>
+<div class="div-Global">
+    <div class="divs-Principales">
+      <h4 class="titulos-princ">Bienvenido al Banco El Ahorro, Administrador</h4>
+    </div>
+    <div class="divs-Principales divs-inicio">
+      <h4 class="titulos-princ">Crear Nuevo Cliente</h4>
+      <br>
+        <form method="post">
+            {% csrf_token %}
+            <button class="botons" type="submit" value="Nuevo" name="Ingresar">Ingresar</button>
+        </form>
+    </div>
+    <div class="divs-Principales divs-inicio">
+      <h4 class="titulos-princ">Crear Nueva Cuenta Bancaria</h4>
+      <br>
+      <form method="post">
+          {% csrf_token %}
+          <button class="botons" type="submit" value="Cuenta" name="Ingresar">Ingresar</button>
+        </form>
+    </div>
+    <div class="divs-Principales divs-inicio">
+      <h4 class="titulos-princ">Crear Nueva Chequera</h4>
+      <br>
+      <form method="post">
+          {% csrf_token %}
+          <button class="botons" type="submit" value="Chequera" name="Ingresar">Ingresar</button>
+        </form>
+    </div>
+    <div class="divs-Principales divs-inicio">
+      <h4 class="titulos-princ">Desbloquear Cuenta</h4>
+      <br>
+      <form method="post">
+          {% csrf_token %}
+          <button class="botons" type="submit" value="Desbloquear" name="Ingresar">Ingresar</button>
+        </form>
+    </div>
+    <div class="divs-Principales divs-inicio">
+      <h4 class="titulos-princ">Relizar Deposito</h4>
+      <br>
+      <form method="post">
+          {% csrf_token %}
+          <button class="botons" type="submit" value="Deposito" name="Ingresar">Ingresar</button>
+        </form>
+    </div>
+    <div class="divs-Principales divs-inicio">
+      <h4 class="titulos-princ">Cambiar Cheque</h4>
+      <br>
+     <form method="post">
+         {% csrf_token %}
+         <button class="botons" type="submit" value="Cheque" name="Ingresar">Ingresar</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

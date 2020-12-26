@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+ {% load static %}
+  <link rel="stylesheet" href="{%static 'css/styleCheques.css' %}">
+  <title>Nuevo Cliente</title>
+</head>
+<header class="divs-Header">
+  <div class="divs-logins">
+    <a class="titulos-header" href="{% url 'inicio' %}">Menu principal</a>
+    <a class="titulos-header" href="{% url 'index' %}"> Salir</a>
+  </div>
+</header> 
+<body>
+  <div class="div-Global">
+    <div class="divs-Principales">
+      <h4 class="titulos-princ">Crear Nuevo Cliente</h4>
+    </div>
+    <div class="divs-derecha">
+      <form method="post">
+        {% csrf_token %}
+        <h4 class="titulos-princ">Cuenta Monetaria</h4>
+        <br>
+        <button class="botons" type="submit" value="Monetaria" name="Ingresar">Ingresar</button>
+        <br>
+        <h4 class="titulos-princ">Cuenta de ahorro</h4>
+        <br>
+        <button class="botons" type="submit" value="Ahorro" name="Ingresar">Ingresar</button>
+        <br>
+        <h4 class="titulos-princ">Cuenta de ahorro a Plazo fijo</h4>
+        <br>
+        <button class="botons" type="submit" value="Plazo" name="Ingresar">Ingresar</button>
+      </form>
+    </div>
+  </div>
+</body>
+  <footer class="footer">
+  <h4 class="letra-elementos">Banco El Ahorro - 2020</h4>
+  </footer>
+</html>

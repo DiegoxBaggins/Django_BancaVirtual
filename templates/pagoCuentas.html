@@ -1,0 +1,52 @@
+<meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+{% load static %}
+  <link rel="stylesheet" href="{%static 'css/stylePagoC.css' %}">
+  <title>Pagar Cuentas</title>
+</head>
+<header class="divs-Header">
+  <div class="divs-logins">
+    <h4 class="titulos-header">Pantalla Principal  -  Salir</h4>
+  </div>
+</header> 
+<body>
+  <div class="div-Global">
+    <div class="divs-Principales">
+      <h4 class="titulos-princ">Pago de Cuentas</h4>
+    </div>
+    <div class="divs-izquierda">
+      <h4 class="titulos-princ">Cuentas</h4>
+      <br>
+      <input class="botons" type="submit" value="Tarjetas de Crédito">
+      <input class="botons" type="submit" value="Préstamos">
+      <input class="botons" type="submit" value="Agua">
+      <input class="botons" type="submit" value="Luz">
+      <input class="botons" type="submit" value="Teléfono">
+      <input class="botons" type="submit" value="Crear Plazo Fijo">
+    </div>
+    <div class="divs-derecha">
+      <h4 class="titulos-princ">Tarjetas de Crédito</h4>
+      <br>
+      <h4 class="letra-elementos">Tarjeta 11253257742413</h4>
+      <br>
+      <h4 class="letra-elementos">Nombre: Diego Alejandro Sierra Garcia</h4>
+      <br>
+      <h4 class="letra-elementos">Saldo: Q1237.12</h4>
+      <br>
+      <h4 class="letra-elementos">Cuentas para pagar</h4>
+      <br>
+      <select name="select" class="boxes">
+        <option value="value2" selected>Cuenta de ahorro 14BDGYR741F - Q4500.12</option>
+        <option value="value3">Cuentas de ahorro 54BDGER128G - Q12452.65</option>
+      </select>
+      <input class="text-box" type="text" name="User" id="User" placeholder="Ingresar Monto a Pagar">
+      <br>
+      <input class="boton-bloq" type="submit" value="Pagar">
+    </div>
+  </div>
+</body>
+  <footer class="footer">
+  <h4 class="letra-elementos">Banco El Ahorro - 2020</h4>
+  </footer>
+</html>

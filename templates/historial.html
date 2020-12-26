@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+{% load static %}
+  <link rel="stylesheet" href="{%static 'css/styleCheques.css' %}">
+  <title>Historial</title>
+</head>
+<header class="divs-Header">
+  <div class="divs-logins">
+    <a class="titulos-header" href="{% url 'inicioNormal' %}">Menu principal</a>
+    <a class="titulos-header" href="{% url 'index1' %}"> Salir</a>
+  </div>
+</header> 
+<body>
+  <div class="div-Global">
+    <div class="divs-Principales">
+      <h4 class="titulos-princ">Historial de Transacciones</h4>
+    </div>
+    <div class="divs-derecha">
+      <h4 class="titulos-princ">Cuenta codigo: {{ titulo }} </h4>
+      <br>
+      <div id="contenedor" class="tables">
+        <table border="1">
+          <caption>Transacciones</caption>
+          <tbody>
+          {% for codigo, monto, fecha, descripcion, tipo, cuenta in cuentas %}
+            <tr>
+              <th>{{ tipo }}</th>
+              <td>{{ codigo }}</td>
+              <td>{{ moneda }} {{ monto }}</td>
+              <td>{{ fecha }}</td>
+              <td>{{ descripcion }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <br>
+    </div>
+  </div>
+</body>
+  <footer class="footer">
+  <h4 class="letra-elementos">Banco El Ahorro - 2020</h4>
+  </footer>
+</html>
