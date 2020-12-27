@@ -7,6 +7,7 @@ password varchar(45) not null,
 tipo int not null,
 estado tinyint not null,
 intentos tinyint not null,
+tarjetas tinyint not null,
 primary key (codigo)
 );
 
@@ -90,24 +91,6 @@ foreign key (codigo) references cheque(codigo),
 foreign key (chequera) references cheque(chequera)
 );
 
-create table djangodic.promocion(
-codigo int not null,
-descripcion varchar(150) not null,
-fecha_inicio date not null,
-fecha_final date not null,
-cuenta int not null,
-primary key(codigo),
-foreign key (cuenta) references cuenta(codigo)
-);
-
-create table djangodic.tarjeta_debito(
-numero int auto_increment not null,
-seguridad int not null,
-cuenta int not null,
-primary key (numero),
-foreign key (cuenta) references cuenta(codigo)
-);
-
 create table djangodic.transaccion (
 codigo_autorizacion int auto_increment not null,
 monto decimal(15,2) not null,
@@ -117,4 +100,76 @@ tipo varchar(30) not null,
 cuenta int not null,
 primary key (codigo_autorizacion, cuenta),
 foreign key (cuenta) references cuenta(codigo)
+);
+
+create table djangodic.tcredito (
+numero int auto_increment not null,
+seguridad int not null,
+limite decimal(14,2) not null,
+gasto decimal(14,2) not null,
+marca varchar(40) not null,
+usuario int not null,
+primary key (numero),
+foreign key (usuario) references usuario(codigo)
+);
+
+create table djangodic.transtarjeta (
+codigo_autorizacion int auto_increment not null,
+monto decimal (14,2) not null,
+fecha date not null,
+descripcion varchar(250) not null,
+tipo varchar(50) not null,
+porcentaje decimal (4,3) not null,
+tarjeta int not null,
+primary key (codigo_autorizacion),
+foreign key (tarjeta) references tcredito(numero)
+);
+
+create table djangodic.compra (
+codigo int not null,
+descripcion varchar(250) not null,
+fecha date not null,
+moneda varchar(10) not null,
+monto decimal(14,2) not null,
+usuario int not null,
+transaccion int not null,
+primary key (codigo),
+foreign key (transaccion) references transtarjeta(codigo_autorizacion),
+foreign key (usuario) references usuario(codigo)
+);
+
+create table djangodic.soliprestamo (
+codigo int auto_increment not null,
+monto decimal (12,2) not null,
+descripcion varchar(250) not null,
+plazo int not null,
+estado varchar(50) not null,
+usuario int not null,
+primary key (codigo),
+foreign key (usuario) references usuario(codigo)
+);
+
+create table djangodic.prestamo (
+codigo int auto_increment not null,
+monto decimal (12,2) not null,
+descripcion varchar(250) not null,
+plazo int not null,
+estado varchar(50) not null,
+cuota decimal (12,2) not null,
+interes decimal (5,2) not null,
+usuario int not null,
+solicitud int not null,
+primary key (codigo),
+foreign key (usuario) references usuario(codigo),
+foreign key (solicitud) references soliprestamo(codigo)
+);
+
+create table djangodic.cuotas (
+prestamo int not null,
+cuota int not null,
+estado varchar(50) not null,
+monto decimal (12,2) not null,
+interes decimal (5,2) not null,
+primary key (prestamo, cuota),
+foreign key (prestamo) references prestamo(codigo)
 );
