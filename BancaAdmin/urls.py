@@ -32,5 +32,5 @@ urlpatterns = [
     path('deposito', views.deposito, name='deposito'),
     path('cambioCheque', views.cambioCheque, name='cambioCheque'),
     path('tarjetas', views.nuevaTarjeta, name='nuevaTarjeta'),
-    #path('prestamos', views.verPrestamos, name='verPrestamos')
+    path('prestamos', views.verPrestamos, name='verPrestamos')
 ]

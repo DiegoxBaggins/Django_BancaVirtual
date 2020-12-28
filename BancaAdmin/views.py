@@ -716,4 +716,121 @@ def constructorTarjeta(numero, usuario):
             return randint(150, 190) * 100, randint(100, 999)
 
 
+def verPrestamos(request):
+    db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+    c = db.cursor()
+    cosulta = "select * from soliprestamo;"
+    c.execute(cosulta)
+    retorno = c.fetchall()
+    if request.method == 'GET':
+        lista = ConvertirTupla(retorno)
+        dicci = {'lista': lista}
+        return render(request, 'admins/Prestamos.html', dicci)
+    else:
+        datos = request.POST
+        filtro = datos.get('Autorizar')
+        bloqueo = datos.get('Denegar')
+        if filtro is not None:
+            cosulta = "select * from soliprestamo where codigo = " + str(filtro) + ";"
+            c.execute(cosulta)
+            retorno = c.fetchone()
+            lista = []
+            cuotas = CalcularPrestamo(float(retorno[1]), retorno[3])
+            for elemento in retorno:
+                lista.append(str(elemento))
+            cosulta = "insert into prestamo (monto, descripcion, plazo, estado, cuota, interes,usuario,solicitud) " \
+                      "values (" + lista[1] + ",'" + lista[2] + "'," + lista[3] + ",'activo', " + str(cuotas[0]) + \
+                      "," + str(cuotas[1]) + "," + lista[5] + "," + lista[0] + ");"
+            c.execute(cosulta)
+            db.commit()
+            cosulta = "update soliprestamo set estado = 'aprobado' where codigo =" + str(filtro) + ";"
+            c.execute(cosulta)
+            db.commit()
+            return redirect('verPrestamos')
+        elif bloqueo is not None:
+            cosulta = "update soliprestamo set estado = 'rechazado' where codigo =" + str(bloqueo) + ";"
+            c.execute(cosulta)
+            db.commit()
+            return redirect('verPrestamos')
+
+
+def ConvertirTupla(retorno):
+    lista = []
+    for tupla in retorno:
+        lista.append(list(tupla))
+    for elementos in lista:
+        if elementos[4] == 'enviado':
+            elementos[4] = 'en espera'
+            elementos.append(True)
+        else:
+            elementos.append(False)
+    return lista
+
+
+def CalcularPrestamo(monto, plazo):
+    if monto <= 5000.00:
+        if plazo == 12:
+            cuota = monto / 12
+            return cuota, 5
+        elif plazo == 24:
+            cuota = monto / 24
+            return cuota, 4
+        elif plazo == 36:
+            cuota = monto / 36
+            return cuota, 3.35
+        elif plazo == 48:
+            cuota = monto / 48
+            return cuota, 2.5
+    elif 5000.00 < monto < 15000.00:
+        if plazo == 12:
+            cuota = monto / 12
+            return cuota, 5.25
+        elif plazo == 24:
+            cuota = monto / 24
+            return cuota, 4.15
+        elif plazo == 36:
+            cuota = monto / 36
+            return cuota, 3.5
+        elif plazo == 48:
+            cuota = monto / 48
+            return cuota, 2.6
+    elif 15000.00 < monto < 30000.00:
+        if plazo == 12:
+            cuota = monto / 12
+            return cuota, 5.3
+        elif plazo == 24:
+            cuota = monto / 24
+            return cuota, 4.2
+        elif plazo == 36:
+            cuota = monto / 36
+            return cuota, 3.55
+        elif plazo == 48:
+            cuota = monto / 48
+            return cuota, 2.65
+    elif 30000.00 < monto < 60000.00:
+        if plazo == 12:
+            cuota = monto / 12
+            return cuota, 5.35
+        elif plazo == 24:
+            cuota = monto / 24
+            return cuota, 4.25
+        elif plazo == 36:
+            cuota = monto / 36
+            return cuota, 3.60
+        elif plazo == 48:
+            cuota = monto / 48
+            return cuota, 2.70
+    elif monto > 60000.00:
+        if plazo == 12:
+            cuota = monto / 12
+            return cuota, 5.45
+        elif plazo == 24:
+            cuota = monto / 24
+            return cuota, 4.35
+        elif plazo == 36:
+            cuota = monto / 36
+            return cuota, 3.70
+        elif plazo == 48:
+            cuota = monto / 48
+            return cuota, 2.80
 
