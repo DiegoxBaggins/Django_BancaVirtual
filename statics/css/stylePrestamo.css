@@ -123,3 +123,18 @@ body {
   background: gray;
   padding: 5px;
 }
+
+.tables, tbody, table{
+  width: 100%;
+  border: 1px solid blue;
+  padding: 1px;
+}
+th, td {
+  width: 20%;
+  height: 30px;
+  text-align: left;
+  border: 1px solid blue;
+  padding: 1px;
+  font-family: 'calibri';
+  font-size: 18px;
+}

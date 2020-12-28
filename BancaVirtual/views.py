@@ -93,8 +93,8 @@ def inicio(request):
             return redirect('cuentaTerceros')
         elif valor == 'Prestamo':
             return redirect('prestamo')
-        elif valor == 'Servicios':
-            return redirect('pagos')
+        elif valor == 'Tarjeta':
+            return redirect('tarjetas')
         elif valor == 'Preautorizar':
             return redirect('preautorizar')
 
@@ -673,8 +673,54 @@ def preChequeEm(request):
             return render(request, 'empresarial/preCheques.html', dicci)
 
 
-def pagoC(request):
-    return render(request, 'pagoCuentas.html')
+def estadoTar(request):
+    usuario = str(request.session['usuario'])
+    db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+    c = db.cursor()
+    cosulta = "select * from c_individual inner join usuario on c_individual.usuario = usuario.codigo where usuario ="+ usuario + ";"
+    c.execute(cosulta)
+    retorno = c.fetchone()
+    nombre = retorno[2]
+    cui = str(retorno[0])
+    nit = str(retorno[1])
+    direccion = retorno[3]
+    if request.method == 'GET':
+        cosulta = "select * from tcredito where usuario = " + usuario + ";"
+        c.execute(cosulta)
+        retorno = c.fetchall()
+        lista = ConvertirTarjeta(retorno)
+        dicci = {'cuentas': lista, 'nombre': nombre, 'cui': cui, 'nit': nit, 'direccion': direccion}
+        return render(request, 'estadoTarjeta.html', dicci)
+    else:
+        datos = request.POST
+        histo = datos.get('Historial')
+        request.session['tarjeta'] = histo
+        return redirect('historialT')
+
+
+def ConvertirTarjeta(retorno):
+    lista = []
+    for tupla in retorno:
+        lista.append(list(tupla))
+    for elementos in lista:
+        if elementos[4] == 'prefepuntos':
+            elementos.append(True)
+        else:
+            elementos.append(False)
+    return lista
+
+
+def historialT(request):
+    usuario = str(request.session['usuario'])
+    tarjeta = str(request.session['tarjeta'])
+    db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+    c = db.cursor()
+    cosulta = "select * from transtarjeta where tarjeta = " + tarjeta + ";"
+    c.execute(cosulta)
+    retorno = c.fetchall()
+    mensaje = tarjeta
+    dicci = {'cuentas': retorno, 'titulo': mensaje}
+    return render(request, 'historialTarjeta.html', dicci)
 
 
 def prestamo(request):
