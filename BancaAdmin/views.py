@@ -72,6 +72,10 @@ def inicio(request):
             return redirect('deposito')
         elif valor == 'Cheque':
             return redirect('cambioCheque')
+        elif valor == 'Tarjeta':
+            return redirect('nuevaTarjeta')
+        elif valor == 'Prestamo':
+            return redirect('verPrestamos')
 
 
 def nuevoCliente(request):
@@ -111,7 +115,7 @@ def nuevoIndividual(request):
             else:
                 usuario = randint(100000, 999999)
                 contra_nueva = randint(1000, 9999)
-                consulta = 'insert into usuario values (' + str(usuario) + ",'" + str(contra_nueva) + "'," + str(1) + ',1,0);'
+                consulta = 'insert into usuario values (' + str(usuario) + ",'" + str(contra_nueva) + "'," + str(1) + ',1,0,0);'
                 c.execute(consulta)
                 db.commit()
                 consulta = 'insert into c_individual values (' + cui + ',' + nit + ",'" + nombre \
@@ -156,7 +160,7 @@ def nuevoEmpresarial(request):
             else:
                 usuario = randint(100000, 999999)
                 contra_nueva = randint(1000, 9999)
-                consulta = 'insert into usuario values (' + str(usuario) + ",'" + str(contra_nueva) + "'," + str(2) + ',1,0);'
+                consulta = 'insert into usuario values (' + str(usuario) + ",'" + str(contra_nueva) + "'," + str(2) + ',1,0,0);'
                 c.execute(consulta)
                 db.commit()
                 abreviacion = registrarTipoE(tipo)
@@ -618,3 +622,98 @@ def cambioCheque(request):
             mensaje = 'Datos incompletos y/o incorrectos'
             dicci = {'form': form, 'mensaje': mensaje}
             return render(request, 'admins/cambioCheque.html', dicci)
+
+
+def nuevaTarjeta(request):
+    if request.method == 'GET':
+        form = tarjetaForm()
+        dicci = {'form': form}
+        return render(request, 'admins/nuevaTarjeta.html', dicci)
+    else:
+        form = tarjetaForm(data=request.POST)
+        if form.is_valid():
+            datos = request.POST
+            cuenta = datos.get('cuenta')
+            tipo = datos.get('tipo')
+            db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+            c = db.cursor()
+            cosulta = "select tarjetas from usuario, c_individual where usuario.codigo = c_individual.usuario and codigo = " + str(cuenta) + ";"
+            c.execute(cosulta)
+            retorno = c.fetchone()
+            if retorno is None:
+                cosulta = "select tarjetas from usuario, c_empresarial where usuario.codigo = c_empresarial.usuario and codigo = " + str(
+                    cuenta) + ";"
+                c.execute(cosulta)
+                retorno = c.fetchone()
+                if retorno is None:
+                    mensaje = 'Datos incorrectos, Usuario inexistente'
+                    dicci = {'form': form, 'mensaje': mensaje}
+                    return render(request, 'admins/nuevaTarjeta.html', dicci)
+                else:
+                    tarjetas = retorno[0]
+                    if tarjetas == 3:
+                        mensaje = 'El usuario ya cuenta con 3 tarjetas no se pueden agregar mas'
+                        dicci = {'form': form, 'mensaje': mensaje}
+                        return render(request, 'admins/nuevaTarjeta.html', dicci)
+                    else:
+                        cantidad = tarjetas + 1
+                        listatarjeta = constructorTarjeta(tarjetas, 'empresarial')
+                        limite = str(listatarjeta[0])
+                        seguridad = str(listatarjeta[1])
+                        consulta = "insert into tcredito (seguridad, limite, gasto, marca, usuario, bono) values (" + seguridad + "," \
+                                   + limite + ", 0,'" + tipo + "'," + cuenta + ", 0);"
+                        c.execute(consulta)
+                        db.commit()
+                        consulta = "select numero, seguridad from tcredito order by numero desc limit 1;"
+                        c.execute(consulta)
+                        retorno = c.fetchone()
+                        consulta = "update usuario set tarjetas = " + str(cantidad) + " where codigo = " + cuenta + ";"
+                        c.execute(consulta)
+                        db.commit()
+                        mensaje = 'Tarjeta registrada con exito'
+                        dicci = {'form': form, 'mensaje': mensaje, 'tarjeta': retorno[0], 'seguridad': retorno[1]}
+                        return render(request, 'admins/nuevaTarjeta.html', dicci)
+            else:
+                tarjetas = retorno[0]
+                if tarjetas == 3:
+                    mensaje = 'El usuario ya cuenta con 3 tarjetas no se pueden agregar mas'
+                    dicci = {'form': form, 'mensaje': mensaje}
+                    return render(request, 'admins/nuevaTarjeta.html', dicci)
+                else:
+                    cantidad = tarjetas + 1
+                    listatarjeta = constructorTarjeta(tarjetas, 'individual')
+                    limite = str(listatarjeta[0])
+                    seguridad = str(listatarjeta[1])
+                    consulta = "insert into tcredito (seguridad, limite, gasto, marca, usuario, bono) values (" + seguridad + "," \
+                                + limite + ", 0,'" + tipo + "'," + cuenta + ", 0);"
+                    c.execute(consulta)
+                    db.commit()
+                    consulta = "select numero, seguridad from tcredito order by numero desc limit 1;"
+                    c.execute(consulta)
+                    retorno = c.fetchone()
+                    consulta = "update usuario set tarjetas = " + str(cantidad) + " where codigo = " + cuenta + ";"
+                    c.execute(consulta)
+                    db.commit()
+                    mensaje = 'Tarjeta registrada con exito'
+                    dicci = {'form': form, 'mensaje': mensaje, 'tarjeta': retorno[0], 'seguridad': retorno[1]}
+                    return render(request, 'admins/nuevaTarjeta.html', dicci)
+
+
+def constructorTarjeta(numero, usuario):
+    if usuario == 'individual':
+        if numero == 0:
+            return randint(50, 70) * 100, randint(100, 999)
+        elif numero == 1:
+            return randint(45, 55) * 100, randint(100, 999)
+        elif numero == 2:
+            return randint(35, 40) * 100, randint(100, 999)
+    elif usuario == 'empresarial':
+        if numero == 0:
+            return randint(100, 150) * 100, randint(100, 999)
+        elif numero == 1:
+            return randint(120, 170) * 100, randint(100, 999)
+        elif numero == 2:
+            return randint(150, 190) * 100, randint(100, 999)
+
+
+

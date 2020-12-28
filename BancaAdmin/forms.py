@@ -90,3 +90,11 @@ class chequeForm(forms.Form):
 
     class Meta:
         fields = ('cuenta', 'chequera', 'cheque', 'monto', 'receptor')
+
+
+class tarjetaForm(forms.Form):
+    cuenta = forms.IntegerField(required=True, label='Ingrese codigo de usuario')
+    tipo = forms.ChoiceField(choices=[('prefepuntos', 'PrefePuntos'), ('cashback', 'CashBack')])
+
+    class Meta:
+        fields = ('cuenta', 'tipo')

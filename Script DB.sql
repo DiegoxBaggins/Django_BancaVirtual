@@ -108,6 +108,7 @@ seguridad int not null,
 limite decimal(14,2) not null,
 gasto decimal(14,2) not null,
 marca varchar(40) not null,
+bono decimal(14,2) not null,
 usuario int not null,
 primary key (numero),
 foreign key (usuario) references usuario(codigo)

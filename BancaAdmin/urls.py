@@ -31,4 +31,6 @@ urlpatterns = [
     path('desbloquear', views.desbloqueo, name='desbloqueo'),
     path('deposito', views.deposito, name='deposito'),
     path('cambioCheque', views.cambioCheque, name='cambioCheque'),
+    path('tarjetas', views.nuevaTarjeta, name='nuevaTarjeta'),
+    #path('prestamos', views.verPrestamos, name='verPrestamos')
 ]
