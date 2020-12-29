@@ -3,7 +3,10 @@ from .forms import *
 import MySQLdb
 import math
 from datetime import date
+import datetime
 from random import randint
+from dateutil.relativedelta import relativedelta
+
 
 # Create your views here.
 host = 'localhost'
@@ -735,7 +738,7 @@ def verPrestamos(request):
             c.execute(cosulta)
             retorno = c.fetchone()
             lista = []
-            cuotas = CalcularPrestamo(float(retorno[1]), retorno[3])
+            cuotas = CalcularPrestamo(float(retorno[1]), int(retorno[3]))
             for elemento in retorno:
                 lista.append(str(elemento))
             cosulta = "insert into prestamo (monto, descripcion, plazo, estado, cuota, interes,usuario,solicitud) " \
@@ -746,6 +749,10 @@ def verPrestamos(request):
             cosulta = "update soliprestamo set estado = 'aprobado' where codigo =" + str(filtro) + ";"
             c.execute(cosulta)
             db.commit()
+            cosulta = "select codigo from prestamo order by codigo desc limit 1;"
+            c.execute(cosulta)
+            retorno = c.fetchone()
+            CalcularCuotas(int(lista[3]), retorno[0], cuotas[0], cuotas[1])
             return redirect('verPrestamos')
         elif bloqueo is not None:
             cosulta = "update soliprestamo set estado = 'rechazado' where codigo =" + str(bloqueo) + ";"
@@ -781,7 +788,7 @@ def CalcularPrestamo(monto, plazo):
         elif plazo == 48:
             cuota = monto / 48
             return cuota, 2.5
-    elif 5000.00 < monto < 15000.00:
+    elif 5000.00 < monto <= 15000.00:
         if plazo == 12:
             cuota = monto / 12
             return cuota, 5.25
@@ -794,7 +801,7 @@ def CalcularPrestamo(monto, plazo):
         elif plazo == 48:
             cuota = monto / 48
             return cuota, 2.6
-    elif 15000.00 < monto < 30000.00:
+    elif 15000.00 < monto <= 30000.00:
         if plazo == 12:
             cuota = monto / 12
             return cuota, 5.3
@@ -807,7 +814,7 @@ def CalcularPrestamo(monto, plazo):
         elif plazo == 48:
             cuota = monto / 48
             return cuota, 2.65
-    elif 30000.00 < monto < 60000.00:
+    elif 30000.00 < monto <= 60000.00:
         if plazo == 12:
             cuota = monto / 12
             return cuota, 5.35
@@ -833,4 +840,25 @@ def CalcularPrestamo(monto, plazo):
         elif plazo == 48:
             cuota = monto / 48
             return cuota, 2.80
+
+
+def CalcularCuotas(cuotas, prestamo, monto, interes):
+    db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+    c = db.cursor()
+    fecha_actual = date.today()
+    mes_actual = int(fecha_actual.strftime("%m"))
+    ano_actual = int(fecha_actual.strftime("%Y"))
+    fecha_mes = datetime.datetime(ano_actual, mes_actual, 31)
+    contar = 1
+    cosulta = "insert into cuotas values (" + str(prestamo) + "," + str(contar) + ",'pendiente'," + str(
+        monto) + "," + str(interes) + ",'" + str(fecha_mes) + "', 0);"
+    c.execute(cosulta)
+    db.commit()
+    contar += 1
+    while contar <= cuotas:
+        fecha = fecha_mes + relativedelta(months=contar)
+        cosulta = "insert into cuotas values (" + str(prestamo) + "," + str(contar) + ",'pendiente'," + str(monto) + "," + str(interes) + ",'" + str(fecha) + "', 0);"
+        c.execute(cosulta)
+        db.commit()
+        contar += 1
 

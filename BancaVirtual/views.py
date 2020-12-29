@@ -101,7 +101,7 @@ def inicio(request):
 
 def inicioEm(request):
     if request.method == 'GET':
-        return render(request, 'inicioEmpresarial.html')
+        return render(request, 'empresarial/inicioEmpresarial.html')
     else:
         datos = request.POST
         valor = datos.get('Ingresar')
@@ -405,6 +405,130 @@ def preCheque(request):
             return render(request, 'preCheques.html', dicci)
 
 
+def estadoTar(request):
+    usuario = str(request.session['usuario'])
+    db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+    c = db.cursor()
+    cosulta = "select * from c_individual inner join usuario on c_individual.usuario = usuario.codigo where usuario ="+ usuario + ";"
+    c.execute(cosulta)
+    retorno = c.fetchone()
+    nombre = retorno[2]
+    cui = str(retorno[0])
+    nit = str(retorno[1])
+    direccion = retorno[3]
+    if request.method == 'GET':
+        cosulta = "select * from tcredito where usuario = " + usuario + ";"
+        c.execute(cosulta)
+        retorno = c.fetchall()
+        lista = ConvertirTarjeta(retorno)
+        dicci = {'cuentas': lista, 'nombre': nombre, 'cui': cui, 'nit': nit, 'direccion': direccion}
+        return render(request, 'estadoTarjeta.html', dicci)
+    else:
+        datos = request.POST
+        histo = datos.get('Historial')
+        request.session['tarjeta'] = histo
+        return redirect('historialT')
+
+
+def ConvertirTarjeta(retorno):
+    lista = []
+    for tupla in retorno:
+        lista.append(list(tupla))
+    for elementos in lista:
+        if elementos[4] == 'prefepuntos':
+            elementos.append(True)
+        else:
+            elementos.append(False)
+    return lista
+
+
+def historialT(request):
+    usuario = str(request.session['usuario'])
+    tarjeta = str(request.session['tarjeta'])
+    db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+    c = db.cursor()
+    cosulta = "select * from transtarjeta where tarjeta = " + tarjeta + ";"
+    c.execute(cosulta)
+    retorno = c.fetchall()
+    mensaje = tarjeta
+    dicci = {'cuentas': retorno, 'titulo': mensaje}
+    return render(request, 'historialTarjeta.html', dicci)
+
+
+def prestamo(request):
+    usuario = str(request.session['usuario'])
+    if request.method == 'GET':
+        form = PrestamoForm()
+        dicci = {'form': form}
+        return render(request, 'prestamos.html', dicci)
+    else:
+        form = PrestamoForm(data=request.POST)
+        if form.is_valid():
+            datos = request.POST
+            monto = datos.get('monto')
+            descripcion = datos.get('descripcion')
+            plazo = datos.get('plazo')
+            calcular = datos.get('Calcular')
+            solicitar = datos.get('Solicitar')
+            if calcular is not None:
+                lista = CalcularPrestamo(float(monto))
+                mensaje = 'Puede modificar la informacion antes de enviarla'
+                dicci = {'form': form, 'mensaje': mensaje, 'prestamos': lista, 'variable1': True}
+                return render(request, 'prestamos.html', dicci)
+            if solicitar is not None:
+                db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+                c = db.cursor()
+                cosulta = "insert into soliprestamo (monto, descripcion, plazo, estado, usuario) values (" + str(monto) + ",'" + str(descripcion) \
+                + "'," + str(plazo) + ",'enviado'," + str(usuario) + ");"
+                c.execute(cosulta)
+                db.commit()
+                mensaje = 'Prestamo solicitado con exito'
+                dicci = {'form': form, 'mensaje': mensaje}
+                return render(request, 'prestamos.html', dicci)
+        else:
+            mensaje = 'Datos incompletos y/o incorrectos'
+            dicci = {'form': form, 'mensaje': mensaje}
+            return render(request, 'prestamos.html', dicci)
+
+
+def estadoPres(request):
+    usuario = str(request.session['usuario'])
+    db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+    c = db.cursor()
+    cosulta = "select * from c_individual inner join usuario on c_individual.usuario = usuario.codigo where usuario ="+ usuario + ";"
+    c.execute(cosulta)
+    retorno = c.fetchone()
+    nombre = retorno[2]
+    cui = str(retorno[0])
+    nit = str(retorno[1])
+    direccion = retorno[3]
+    if request.method == 'GET':
+        cosulta = "select * from tcredito where usuario = " + usuario + ";"
+        c.execute(cosulta)
+        retorno = c.fetchall()
+        lista = ConvertirTarjeta(retorno)
+        dicci = {'cuentas': lista, 'nombre': nombre, 'cui': cui, 'nit': nit, 'direccion': direccion}
+        return render(request, 'estadoTarjeta.html', dicci)
+    else:
+        datos = request.POST
+        histo = datos.get('Historial')
+        request.session['tarjeta'] = histo
+        return redirect('historialT')
+
+
+def cuotasPres(request):
+    usuario = str(request.session['usuario'])
+    tarjeta = str(request.session['tarjeta'])
+    db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+    c = db.cursor()
+    cosulta = "select * from transtarjeta where tarjeta = " + tarjeta + ";"
+    c.execute(cosulta)
+    retorno = c.fetchall()
+    mensaje = tarjeta
+    dicci = {'cuentas': retorno, 'titulo': mensaje}
+    return render(request, 'historialTarjeta.html', dicci)
+
+
 def estadoCEm(request):
     usuario = str(request.session['usuario'])
     db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
@@ -673,58 +797,222 @@ def preChequeEm(request):
             return render(request, 'empresarial/preCheques.html', dicci)
 
 
-def estadoTar(request):
-    usuario = str(request.session['usuario'])
-    db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
-    c = db.cursor()
-    cosulta = "select * from c_individual inner join usuario on c_individual.usuario = usuario.codigo where usuario ="+ usuario + ";"
-    c.execute(cosulta)
-    retorno = c.fetchone()
-    nombre = retorno[2]
-    cui = str(retorno[0])
-    nit = str(retorno[1])
-    direccion = retorno[3]
-    if request.method == 'GET':
-        cosulta = "select * from tcredito where usuario = " + usuario + ";"
-        c.execute(cosulta)
-        retorno = c.fetchall()
-        lista = ConvertirTarjeta(retorno)
-        dicci = {'cuentas': lista, 'nombre': nombre, 'cui': cui, 'nit': nit, 'direccion': direccion}
-        return render(request, 'estadoTarjeta.html', dicci)
-    else:
-        datos = request.POST
-        histo = datos.get('Historial')
-        request.session['tarjeta'] = histo
-        return redirect('historialT')
-
-
-def ConvertirTarjeta(retorno):
-    lista = []
-    for tupla in retorno:
-        lista.append(list(tupla))
-    for elementos in lista:
-        if elementos[4] == 'prefepuntos':
-            elementos.append(True)
-        else:
-            elementos.append(False)
-    return lista
-
-
-def historialT(request):
-    usuario = str(request.session['usuario'])
-    tarjeta = str(request.session['tarjeta'])
-    db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
-    c = db.cursor()
-    cosulta = "select * from transtarjeta where tarjeta = " + tarjeta + ";"
-    c.execute(cosulta)
-    retorno = c.fetchall()
-    mensaje = tarjeta
-    dicci = {'cuentas': retorno, 'titulo': mensaje}
-    return render(request, 'historialTarjeta.html', dicci)
-
-
-def prestamo(request):
-    return render(request, 'prestamos.html')
+def CalcularPrestamo(monto):
+    if monto <= 5000.00:
+        lista = []
+        lista1 = []
+        cuota1 = monto / 12
+        interes = cuota1 * 0.05
+        total = cuota1 + interes
+        lista1.append(round(monto, 2))
+        lista1.append(12)
+        lista1.append(round(cuota1, 2))
+        lista1.append('5%')
+        lista1.append(round(total, 2))
+        lista.append(lista1)
+        lista1 = []
+        cuota1 = monto / 24
+        interes = cuota1 * 0.04
+        total = cuota1 + interes
+        lista1.append(round(monto, 2))
+        lista1.append(12)
+        lista1.append(round(cuota1, 2))
+        lista1.append('4%')
+        lista1.append(round(total, 2))
+        lista.append(lista1)
+        lista1 = []
+        cuota1 = monto / 36
+        interes = cuota1 * 0.0335
+        total = cuota1 + interes
+        lista1.append(round(monto, 2))
+        lista1.append(12)
+        lista1.append(round(cuota1, 2))
+        lista1.append('3.35%')
+        lista1.append(round(total, 2))
+        lista.append(lista1)
+        lista1 = []
+        cuota1 = monto / 48
+        interes = cuota1 * 0.025
+        total = cuota1 + interes
+        lista1.append(round(monto, 2))
+        lista1.append(12)
+        lista1.append(round(cuota1, 2))
+        lista1.append('2.5%')
+        lista1.append(round(total, 2))
+        lista.append(lista1)
+        return lista
+    elif 5000.00 < monto <= 15000.00:
+        lista = []
+        lista1 = []
+        cuota1 = monto / 12
+        interes = cuota1 * 0.0525
+        total = cuota1 + interes
+        lista1.append(round(monto, 2))
+        lista1.append(12)
+        lista1.append(round(cuota1, 2))
+        lista1.append('5.25%')
+        lista1.append(round(total, 2))
+        lista.append(lista1)
+        lista1 = []
+        cuota1 = monto / 24
+        interes = cuota1 * 0.0415
+        total = cuota1 + interes
+        lista1.append(round(monto, 2))
+        lista1.append(12)
+        lista1.append(round(cuota1, 2))
+        lista1.append('4.15%')
+        lista1.append(round(total, 2))
+        lista.append(lista1)
+        lista1 = []
+        cuota1 = monto / 36
+        interes = cuota1 * 0.0350
+        total = cuota1 + interes
+        lista1.append(round(monto, 2))
+        lista1.append(12)
+        lista1.append(round(cuota1, 2))
+        lista1.append('3.5%')
+        lista1.append(round(total, 2))
+        lista.append(lista1)
+        lista1 = []
+        cuota1 = monto / 48
+        interes = cuota1 * 0.026
+        total = cuota1 + interes
+        lista1.append(round(monto, 2))
+        lista1.append(12)
+        lista1.append(round(cuota1, 2))
+        lista1.append('2.6%')
+        lista1.append(round(total, 2))
+        lista.append(lista1)
+        return lista
+    elif 15000.00 < monto <= 30000.00:
+        lista = []
+        lista1 = []
+        cuota1 = monto / 12
+        interes = cuota1 * 0.053
+        total = cuota1 + interes
+        lista1.append(round(monto, 2))
+        lista1.append(12)
+        lista1.append(round(cuota1, 2))
+        lista1.append('5.30%')
+        lista1.append(round(total, 2))
+        lista.append(lista1)
+        lista1 = []
+        cuota1 = monto / 24
+        interes = cuota1 * 0.042
+        total = cuota1 + interes
+        lista1.append(round(monto, 2))
+        lista1.append(12)
+        lista1.append(round(cuota1, 2))
+        lista1.append('4.20%')
+        lista1.append(round(total, 2))
+        lista.append(lista1)
+        lista1 = []
+        cuota1 = monto / 36
+        interes = cuota1 * 0.0355
+        total = cuota1 + interes
+        lista1.append(round(monto, 2))
+        lista1.append(12)
+        lista1.append(round(cuota1, 2))
+        lista1.append('3.55%')
+        lista1.append(round(total, 2))
+        lista.append(lista1)
+        lista1 = []
+        cuota1 = monto / 48
+        interes = cuota1 * 0.065
+        total = cuota1 + interes
+        lista1.append(round(monto, 2))
+        lista1.append(12)
+        lista1.append(round(cuota1, 2))
+        lista1.append('2.65%')
+        lista1.append(round(total, 2))
+        lista.append(lista1)
+        return lista
+    elif 30000.00 < monto <= 60000.00:
+        lista = []
+        lista1 = []
+        cuota1 = monto / 12
+        interes = cuota1 * 0.0535
+        total = cuota1 + interes
+        lista1.append(round(monto, 2))
+        lista1.append(12)
+        lista1.append(round(cuota1, 2))
+        lista1.append('5.35%')
+        lista1.append(round(total, 2))
+        lista.append(lista1)
+        lista1 = []
+        cuota1 = monto / 24
+        interes = cuota1 * 0.0425
+        total = cuota1 + interes
+        lista1.append(round(monto, 2))
+        lista1.append(12)
+        lista1.append(round(cuota1, 2))
+        lista1.append('4.25%')
+        lista1.append(round(total, 2))
+        lista.append(lista1)
+        lista1 = []
+        cuota1 = monto / 36
+        interes = cuota1 * 0.0360
+        total = cuota1 + interes
+        lista1.append(round(monto, 2))
+        lista1.append(12)
+        lista1.append(round(cuota1, 2))
+        lista1.append('3.60%')
+        lista1.append(round(total, 2))
+        lista.append(lista1)
+        lista1 = []
+        cuota1 = monto / 48
+        interes = cuota1 * 0.0270
+        total = cuota1 + interes
+        lista1.append(round(monto, 2))
+        lista1.append(12)
+        lista1.append(round(cuota1, 2))
+        lista1.append('2.70%')
+        lista1.append(round(total, 2))
+        lista.append(lista1)
+        return lista
+    elif monto > 60000.00:
+        lista = []
+        lista1 = []
+        cuota1 = monto / 12
+        interes = cuota1 * 0.0545
+        total = cuota1 + interes
+        lista1.append(round(monto, 2))
+        lista1.append(12)
+        lista1.append(round(cuota1, 2))
+        lista1.append('5.45%')
+        lista1.append(round(total, 2))
+        lista.append(lista1)
+        lista1 = []
+        cuota1 = monto / 24
+        interes = cuota1 * 0.0435
+        total = cuota1 + interes
+        lista1.append(round(monto, 2))
+        lista1.append(12)
+        lista1.append(round(cuota1, 2))
+        lista1.append('4.35%')
+        lista1.append(round(total, 2))
+        lista.append(lista1)
+        lista1 = []
+        cuota1 = monto / 36
+        interes = cuota1 * 0.0370
+        total = cuota1 + interes
+        lista1.append(round(monto, 2))
+        lista1.append(12)
+        lista1.append(round(cuota1, 2))
+        lista1.append('3.70%')
+        lista1.append(round(total, 2))
+        lista.append(lista1)
+        lista1 = []
+        cuota1 = monto / 48
+        interes = cuota1 * 0.0280
+        total = cuota1 + interes
+        lista1.append(round(monto, 2))
+        lista1.append(12)
+        lista1.append(round(cuota1, 2))
+        lista1.append('2.80%')
+        lista1.append(round(total, 2))
+        lista.append(lista1)
+        return lista
 
 
 def planillas(request):

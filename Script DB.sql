@@ -170,7 +170,9 @@ prestamo int not null,
 cuota int not null,
 estado varchar(50) not null,
 monto decimal (12,2) not null,
-interes decimal (5,2) not null,
+interes decimal (10,2) not null,
+fecha date not null,
+pago decimal (12,2) not null,
 primary key (prestamo, cuota),
 foreign key (prestamo) references prestamo(codigo)
 );

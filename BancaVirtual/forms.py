@@ -15,16 +15,6 @@ class AgregarUsuarioForm(forms.Form):
         fields = 'cuenta'
 
 
-class TransferenciasPropiasForm(forms.Form):
-
-    def __init__(self, lista):
-        super(TransferenciasPropiasForm, self).__init__()
-        self.fields['cuentas'] = forms.ChoiceField(choices=tuple([(codigo, codigo) for codigo in lista]))
-
-    class Meta:
-        fields = 'cuentas'
-
-
 class chequeForm(forms.Form):
     cuenta = forms.IntegerField(required=True, label='Ingrese numero de cuenta')
     chequera = forms.IntegerField(required=True, label='Ingrese codigo de la chequera')
@@ -34,3 +24,12 @@ class chequeForm(forms.Form):
 
     class Meta:
         fields = ('cuenta', 'chequera', 'cheque', 'monto', 'receptor')
+
+
+class PrestamoForm(forms.Form):
+    monto = forms.DecimalField(decimal_places=2, required=True, label='Ingrese monto', initial=0.00)
+    descripcion = forms.CharField(required=True, label='Descripcion')
+    plazo = forms.ChoiceField(choices=[(12, '12 meses'), (24, '24 meses'), (36, '36 meses'), (48, '48 meses')])
+
+    class Meta:
+        fields = ('monto', 'descripcion', 'plazo')

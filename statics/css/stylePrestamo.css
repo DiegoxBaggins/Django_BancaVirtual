@@ -138,3 +138,22 @@ th, td {
   font-family: 'calibri';
   font-size: 18px;
 }
+
+input, select {
+  width: 40%;
+  background: #C8C8C8;
+  padding: 2px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  border: 1px solid black;
+  font-family: 'calibri';
+  font-size: 18px;
+  color: black;
+}
+
+p {
+  font-family: 'Times New Roman', Times, serif;
+  color: black;
+  text-align: left;
+  font-size: 20px;
+}
