@@ -22,25 +22,16 @@
   <form method="post">
         {% csrf_token %}
       <div class="divs-derecha">
-          <h4 class="letra-elementos">Nombre: {{ nombre }}</h4>
-        <h4 class="letra-elementos">CUI: {{ cui }}</h4>
-        <h4 class="letra-elementos">NIT: {{ nit }}</h4>
-         <h4 class="letra-elementos">Direccion: {{ direccion }}</h4>
-          <h4 class="titulos-princ">Tarjetas de credito</h4>
+        <h4 class="titulos-princ">Solicitudes de Prestamos</h4>
         <br>
-        {% for codigo, seguridad, limite, gasto, marca, usuario, bono, tipo1 in cuentas %}
-        <h4 class="letra-elementos">Tarjeta: {{marca}} {{ codigo }}  </h4>
+        {% for codigo, monto, descripcion, plazo, estado, cuota, interes, usuario, solicitud in lista %}
+        <h4 class="letra-elementos">Prestamo: {{ codigo }}</h4>
         <br>
-        <h4 class="letra-elementos">Saldo: {{ gasto }}</h4>
+        <h4 class="letra-elementos">Descripcion: {{ descripcion }}</h4>
         <br>
-        <h4 class="letra-elementos">Limite: {{ limite }}</h4>
+        <h4 class="letra-elementos">Monto: {{ monto }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Plazo: {{ plazo }} meses &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Estado: {{ estado }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Interes: {{ interes }}%</h4>
         <br>
-        {% if tipo1 %}
-        <h4 class="letra-elementos">Puntos: {{ estado }}</h4>
-        {% else %}
-        <h4 class="letra-elementos">CashBack: {{ estado }}</h4>
-        {% endif %}
-        <button class="boton-bloq" type="submit" value= "{{ codigo }}" name="Historial">Historial</button>
+        <button class="boton-bloq" type="submit" value= "{{ codigo }}" name="historial">Ver Cuotas</button>
         <br>
         {% endfor%}
       </div>

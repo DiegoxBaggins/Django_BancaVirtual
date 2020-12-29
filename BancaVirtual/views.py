@@ -97,6 +97,8 @@ def inicio(request):
             return redirect('tarjetas')
         elif valor == 'Preautorizar':
             return redirect('preautorizar')
+        elif valor == 'Prestamos':
+            return redirect('estadoPrestamo')
 
 
 def inicioEm(request):
@@ -455,7 +457,7 @@ def historialT(request):
     return render(request, 'historialTarjeta.html', dicci)
 
 
-def prestamo(request):
+def solicitarPrestamo(request):
     usuario = str(request.session['usuario'])
     if request.method == 'GET':
         form = PrestamoForm()
@@ -495,306 +497,141 @@ def estadoPres(request):
     usuario = str(request.session['usuario'])
     db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
     c = db.cursor()
-    cosulta = "select * from c_individual inner join usuario on c_individual.usuario = usuario.codigo where usuario ="+ usuario + ";"
+    cosulta = "select * from prestamo where usuario =" + str(usuario) + ";"
     c.execute(cosulta)
-    retorno = c.fetchone()
-    nombre = retorno[2]
-    cui = str(retorno[0])
-    nit = str(retorno[1])
-    direccion = retorno[3]
+    retorno = c.fetchall()
     if request.method == 'GET':
-        cosulta = "select * from tcredito where usuario = " + usuario + ";"
-        c.execute(cosulta)
-        retorno = c.fetchall()
-        lista = ConvertirTarjeta(retorno)
-        dicci = {'cuentas': lista, 'nombre': nombre, 'cui': cui, 'nit': nit, 'direccion': direccion}
-        return render(request, 'estadoTarjeta.html', dicci)
+        dicci = {'lista': retorno}
+        return render(request, 'estadoPres.html', dicci)
     else:
         datos = request.POST
-        histo = datos.get('Historial')
-        request.session['tarjeta'] = histo
-        return redirect('historialT')
+        histo = datos.get('historial')
+        request.session['prestamo'] = histo
+        return redirect('cuotasEs')
 
 
 def cuotasPres(request):
     usuario = str(request.session['usuario'])
-    tarjeta = str(request.session['tarjeta'])
+    prestamo = str(request.session['prestamo'])
     db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
     c = db.cursor()
-    cosulta = "select * from transtarjeta where tarjeta = " + tarjeta + ";"
+    cosulta = "select * from cuotas where prestamo =" + prestamo + ";"
     c.execute(cosulta)
     retorno = c.fetchall()
-    mensaje = tarjeta
-    dicci = {'cuentas': retorno, 'titulo': mensaje}
-    return render(request, 'historialTarjeta.html', dicci)
-
-
-def estadoCEm(request):
-    usuario = str(request.session['usuario'])
-    db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
-    c = db.cursor()
-    cosulta = "select * from c_empresarial inner join usuario on c_empresarial.usuario = usuario.codigo where usuario =" + usuario + ";"
+    cosulta = "select codigo, tipo, moneda, monto from cuenta where usuario = " + usuario + " and tipo != 'plazo fijo' ;"
     c.execute(cosulta)
-    retorno = c.fetchone()
-    nombre = retorno[1]
-    representante = retorno[3]
-    nit = str(retorno[0])
-    direccion = retorno[4]
-    if request.method == 'GET':
-        cosulta = "select cuenta.codigo, cuenta.tipo, c_empresarial.nombre, cuenta.moneda, cuenta.monto, cuenta.estado " \
-                  "from c_empresarial, usuario, cuenta where c_empresarial.usuario = usuario.codigo and " \
-                  "usuario.codigo = cuenta.usuario and usuario.codigo = " + usuario + ";"
-        c.execute(cosulta)
-        retorno = c.fetchall()
-        lista = ConvertirTupla(retorno)
-        mensaje = 'Cuentas'
-        dicci = {'cuentas': lista, 'titulo': mensaje, 'nombre': nombre, 'representante': representante, 'nit': nit, 'direccion': direccion}
-        return render(request, 'empresarial/estadoCuenta.html', dicci)
-    else:
+    cuentas1 = c.fetchall()
+    titulo = prestamo
+    dicci = {'cuentas': retorno, 'titulo': titulo, 'cuentas1': cuentas1}
+    if request.method == 'POST':
         datos = request.POST
-        filtro = datos.get('Ingresar')
-        bloqueo = datos.get('Bloqueo')
-        histo = datos.get('Historial')
-        if filtro is not None:
-            if filtro == 'Monetaria':
-                cosulta = "select cuenta.codigo, cuenta.tipo, c_empresarial.nombre, cuenta.moneda, cuenta.monto, cuenta.estado " \
-                          "from c_empresarial, usuario, cuenta where c_empresarial.usuario = usuario.codigo and " \
-                          "usuario.codigo = cuenta.usuario and usuario.codigo = " + usuario + " " \
-                          " and cuenta.tipo = 'monetaria' ;"
-                c.execute(cosulta)
-                retorno = c.fetchall()
-                lista = ConvertirTupla(retorno)
-                mensaje = 'Cuentas Monetarias'
-                dicci = {'cuentas': lista, 'titulo': mensaje, 'nombre': nombre, 'representante': representante, 'nit': nit, 'direccion': direccion}
-                return render(request, 'empresarial/estadoCuenta.html', dicci)
-            elif filtro == 'Ahorro':
-                cosulta = "select cuenta.codigo, cuenta.tipo, c_empresarial.nombre, cuenta.moneda, cuenta.monto, cuenta.estado " \
-                          "from c_empresarial, usuario, cuenta where c_empresarial.usuario = usuario.codigo and " \
-                          "usuario.codigo = cuenta.usuario and usuario.codigo = " + usuario + " " \
-                          " and cuenta.tipo = 'ahorro' ;"
-                c.execute(cosulta)
-                retorno = c.fetchall()
-                lista = ConvertirTupla(retorno)
-                mensaje = 'Cuentas de ahorro'
-                dicci = {'cuentas': lista, 'titulo': mensaje, 'nombre': nombre, 'representante': representante, 'nit': nit, 'direccion': direccion}
-                return render(request, 'empresarial/estadoCuenta.html', dicci)
-            elif filtro == 'Plazo':
-                cosulta = "select cuenta.codigo, cuenta.tipo, c_empresarial.nombre, cuenta.moneda, cuenta.monto, cuenta.estado " \
-                          "from c_empresarial, usuario, cuenta where c_empresarial.usuario = usuario.codigo and " \
-                          "usuario.codigo = cuenta.usuario and usuario.codigo = " + usuario + " " \
-                          " and cuenta.tipo = 'plazo fijo' ;"
-                c.execute(cosulta)
-                retorno = c.fetchall()
-                lista = ConvertirTupla(retorno)
-                mensaje = 'Cuentas Plazo Fijo'
-                dicci = {'cuentas': lista, 'titulo': mensaje, 'nombre': nombre, 'representante': representante, 'nit': nit, 'direccion': direccion}
-                return render(request, 'empresarial/estadoCuenta.html', dicci)
-        elif bloqueo is not None:
-            cosulta = "select estado from cuenta where codigo = " + bloqueo + ";"
-            c.execute(cosulta)
-            retorno = c.fetchone()
-            print(retorno)
-            if retorno[0] == 1:
-                consulta = 'update cuenta set estado = 0 where codigo = ' + bloqueo + ';'
-                print(consulta)
-                c.execute(consulta)
-                db.commit()
-                c.close()
-            else:
-                consulta = 'update cuenta set estado = 1 where codigo = ' + bloqueo + ';'
-                c.execute(consulta)
-                db.commit()
-                c.close()
-            return redirect('estadoCuentaEm')
-        elif histo is not None:
-            cosulta = "select moneda from cuenta where codigo = " + histo + ";"
-            c.execute(cosulta)
-            retorno = c.fetchone()
-            request.session['cuenta'] = histo
-            request.session['moneda'] = retorno[0]
-            return redirect('historialEm')
-
-
-def historialEm(request):
-    usuario = str(request.session['usuario'])
-    cuenta = str(request.session['cuenta'])
-    moneda = request.session['moneda']
-    print(cuenta)
-    db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
-    c = db.cursor()
-    cosulta = "select * from transaccion where cuenta =" + cuenta + ";"
-    c.execute(cosulta)
-    retorno = c.fetchall()
-    mensaje = cuenta
-    dicci = {'cuentas': retorno, 'titulo': mensaje, 'moneda': moneda}
-    return render(request, 'empresarial/historial.html', dicci)
-
-
-def nuevaCEm(request):
-    usuario = str(request.session['usuario'])
-    if request.method == 'GET':
-        form = AgregarUsuarioForm()
-        dicci = {'form': form}
-        return render(request, 'empresarial/registrarCuenta.html', dicci)
-    else:
-        form = AgregarUsuarioForm(data=request.POST)
-        if form.is_valid():
-            datos = request.POST
-            cuenta = datos.get('cuenta')
-            nombre = datos.get('nombre')
-            db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
-            c = db.cursor()
-            cosulta = 'select codigo, usuario from cuenta where codigo =' + cuenta + ";"
+        cuenta = datos.get('select1')
+        boton = datos.get('historial')
+        if boton == 'pagar':
+            fecha_actual = date.today()
+            mes_actual = int(fecha_actual.strftime("%m"))
+            ano_actual = int(fecha_actual.strftime("%Y"))
+            cosulta = "select * from cuotas where prestamo =" + prestamo + " and month(fecha) = " + str(mes_actual) + " and " \
+            " year(fecha) = " + str(ano_actual) + " and estado = 'pendiente';"
             c.execute(cosulta)
             retorno = c.fetchone()
             if retorno is None:
-                mensaje = 'Cuenta no existe'
-                dicci = {'form': form, 'mensaje': mensaje}
-                return render(request, 'empresarial/registrarCuenta.html', dicci)
+                dicci['mensaje'] = 'Cuota del mes ya esta pagada'
+                return render(request, 'cuotasPres.html', dicci)
             else:
-                terceros = str(retorno[0])
-                usuario_cuenta = str(retorno[1])
-                if usuario != usuario_cuenta:
-                    cosulta = "select * from cuenta_tercero where usuario = " + usuario + " and cuenta = " + terceros + ";"
+                codigo_cuota = retorno[1]
+                monto_cuota = retorno[3]
+                interes_cuota = retorno[4]
+                cosulta = "select * from cuenta where codigo =" + cuenta + ";"
+                c.execute(cosulta)
+                retorno = c.fetchone()
+                monto_cuenta = retorno[2]
+                estado_cuenta = retorno[3]
+                if estado_cuenta == 0 or float(monto_cuota) > float(monto_cuenta):
+                    dicci['mensaje'] = 'La cuenta esta bloqueada o no hay dinero suficiente para pagar'
+                    return render(request, 'cuotasPres.html', dicci)
+                else:
+                    pagar = ((float(interes_cuota)/100) + 1) * float(monto_cuota)
+                    nuevo_monto = float(monto_cuenta) - pagar
+                    cosulta = "update cuotas set estado = 'pagado' where prestamo = " + prestamo + " and cuota = " + str(codigo_cuota) + ";"
+                    c.execute(cosulta)
+                    db.commit()
+                    cosulta = "update cuotas set pago = " + str(pagar) + " where prestamo = " + prestamo + " and cuota = " + str(codigo_cuota) + ";"
+                    c.execute(cosulta)
+                    db.commit()
+                    cosulta = "update cuotas set fecha = '" + str(fecha_actual) + "' where prestamo = " + prestamo + " and cuota = " + str(codigo_cuota) + ";"
+                    c.execute(cosulta)
+                    db.commit()
+                    cosulta = "update cuenta set monto = " + str(nuevo_monto) + " where codigo = " + cuenta + ";"
+                    c.execute(cosulta)
+                    db.commit()
+                    consulta = "insert into transaccion (monto, fecha, descripcion, tipo, cuenta) values (" + \
+                               str(pagar) + ",'" + str(fecha_actual) + "','Pago de prestamo " + str(prestamo) + "','retiro'," + cuenta + ');'
+                    c.execute(consulta)
+                    db.commit()
+                    c.close()
+                    return redirect('cuotasEs')
+        elif boton == 'adelantar':
+            fecha_actual = date.today()
+            mes_actual = int(fecha_actual.strftime("%m"))
+            ano_actual = int(fecha_actual.strftime("%Y"))
+            cosulta = "select * from cuotas where prestamo =" + prestamo + " and month(fecha) = " + str(
+                mes_actual) + " and " \
+                              " year(fecha) = " + str(ano_actual) + " and estado = 'pendiente';"
+            c.execute(cosulta)
+            retorno = c.fetchone()
+            if retorno is not None:
+                dicci['mensaje'] = 'Cuota del mes actual no ha sido pagada, no puede adelantar pagos'
+                return render(request, 'cuotasPres.html', dicci)
+            else:
+                cosulta = "select * from cuotas where prestamo =" + prestamo + " and estado = 'pendiente' order by cuota limit 1;"
+                c.execute(cosulta)
+                retorno = c.fetchone()
+                if retorno is None:
+                    cosulta = "update prestamo set estado = 'pagado' where codigo = " + prestamo + ";"
+                    c.execute(cosulta)
+                    db.commit()
+                    dicci['mensaje'] = 'Todas las cuotas han sido pagadas'
+                    return render(request, 'cuotasPres.html', dicci)
+                else:
+                    codigo_cuota = retorno[1]
+                    monto_cuota = retorno[3]
+                    interes_cuota = retorno[4]
+                    cosulta = "select * from cuenta where codigo =" + cuenta + ";"
                     c.execute(cosulta)
                     retorno = c.fetchone()
-                    if retorno is None:
-                        cosulta = "insert into cuenta_tercero values(" + usuario + "," + terceros + ",'" + nombre + "');"
+                    monto_cuenta = retorno[2]
+                    estado_cuenta = retorno[3]
+                    if estado_cuenta == 0 or float(monto_cuota) > float(monto_cuenta):
+                        dicci['mensaje'] = 'La cuenta esta bloqueada o no hay dinero suficiente para pagar'
+                        return render(request, 'cuotasPres.html', dicci)
+                    else:
+                        pagar = float(monto_cuota)
+                        nuevo_monto = float(monto_cuenta) - pagar
+                        cosulta = "update cuotas set estado = 'adelantado' where prestamo = " + prestamo + " and cuota = " + str(
+                            codigo_cuota) + ";"
                         c.execute(cosulta)
                         db.commit()
+                        cosulta = "update cuotas set pago = " + str(
+                            pagar) + " where prestamo = " + prestamo + " and cuota = " + str(codigo_cuota) + ";"
+                        c.execute(cosulta)
+                        db.commit()
+                        cosulta = "update cuotas set fecha = '" + str(
+                            fecha_actual) + "' where prestamo = " + prestamo + " and cuota = " + str(codigo_cuota) + ";"
+                        c.execute(cosulta)
+                        db.commit()
+                        cosulta = "update cuenta set monto = " + str(nuevo_monto) + " where codigo = " + cuenta + ";"
+                        c.execute(cosulta)
+                        db.commit()
+                        consulta = "insert into transaccion (monto, fecha, descripcion, tipo, cuenta) values (" + \
+                                   str(pagar) + ",'" + str(fecha_actual) + "','Pago de prestamo " + str(
+                            prestamo) + "','retiro'," + cuenta + ');'
+                        c.execute(consulta)
+                        db.commit()
                         c.close()
-                        mensaje = 'Cuenta registrada con exito'
-                        dicci = {'form': form, 'mensaje': mensaje}
-                        return render(request, 'empresarial/registrarCuenta.html', dicci)
-                    else:
-                        mensaje = 'No puede registrar, cuenta ya registrada'
-                        dicci = {'form': form, 'mensaje': mensaje}
-                        return render(request, 'empresarial/registrarCuenta.html', dicci)
-                else:
-                    mensaje = 'No puede registrar cuentas del mismo usuario'
-                    dicci = {'form': form, 'mensaje': mensaje}
-                    return render(request, 'empresarial/registrarCuenta.html', dicci)
-        else:
-            mensaje = 'Datos incompletos y/o incorrectos'
-            dicci = {'form': form, 'mensaje': mensaje}
-            return render(request, 'empresarial/registrarCuenta.html', dicci)
-
-
-def transferenciasEm(request):
-    usuario = str(request.session['usuario'])
-    db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
-    c = db.cursor()
-    if request.method == 'GET':
-        mensaje = 'Seleccionar Opcion'
-        dicci = {'titulo': mensaje}
-        return render(request, 'empresarial/transferencias.html', dicci)
+                        return redirect('cuotasEs')
     else:
-        datos = request.POST
-        filtro = datos.get('Cambio')
-        transferir = datos.get('Transferir')
-        if filtro is not None:
-            if filtro == 'Propio':
-                cosulta = "select codigo, tipo, moneda, monto from cuenta where usuario = " + usuario + " and tipo != 'plazo fijo' ;"
-                c.execute(cosulta)
-                cuentas1 = c.fetchall()
-                cosulta = "select codigo,tipo, moneda, monto from cuenta where usuario = " + usuario + ";"
-                c.execute(cosulta)
-                cuentas2 = c.fetchall()
-                mensaje = 'Cuentas Propias'
-                variable = True
-                dicci = {'titulo': mensaje, 'cuentas1': cuentas1, 'cuentas2': cuentas2, 'variable1': variable}
-                return render(request, 'empresarial/transferencias.html', dicci)
-            elif filtro == 'Tercero':
-                cosulta = "select codigo, tipo, moneda, monto from cuenta where usuario = " + usuario + " and tipo != 'plazo fijo' ;"
-                c.execute(cosulta)
-                cuentas1 = c.fetchall()
-                cosulta = "select cuenta, nombre from cuenta_tercero where usuario = " + usuario + ";"
-                c.execute(cosulta)
-                cuentas3 = c.fetchall()
-                mensaje = 'Cuentas a terceros'
-                variable = True
-                dicci = {'titulo': mensaje, 'cuentas1': cuentas1, 'cuentas3': cuentas3, 'variable2': variable}
-                return render(request, 'empresarial/transferencias.html', dicci)
-        elif transferir is not None:
-            mensaje = 'Transferencia Hecha'
-            dicci = {'mensaje': mensaje}
-            return render(request, 'empresarial/transferencias.html', dicci)
-
-
-def preChequeEm(request):
-    usuario = str(request.session['usuario'])
-    if request.method == 'GET':
-        form = chequeForm()
-        dicci = {'form': form}
-        return render(request, 'empresarial/preCheques.html', dicci)
-    else:
-        form = chequeForm(data=request.POST)
-        if form.is_valid():
-            datos = request.POST
-            cuenta = datos.get('cuenta')
-            chequera = datos.get('chequera')
-            monto = datos.get('monto')
-            cheque = datos.get('cheque')
-            receptor = datos.get('receptor')
-            db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
-            c = db.cursor()
-            cosulta = "select cuenta.monto, cuenta.pre_cheques, chequera.cantidad, cheque.estado, cuenta.estado from cuenta, chequera," \
-                      " cheque where cuenta.codigo=chequera.cuenta and cheque.chequera=chequera.codigo " \
-                      "and cuenta.codigo = " + cuenta + " and chequera.codigo = " + chequera + " and " \
-                                                                                               "cheque.codigo = " + cheque + ";"
-            c.execute(cosulta)
-            retorno = c.fetchone()
-            if retorno is None:
-                mensaje = 'Datos incorrectos, cuenta, chequera o cheque inexistente'
-                dicci = {'form': form, 'mensaje': mensaje}
-                return render(request, 'empresarial/preCheques.html', dicci)
-            else:
-                monto_cuenta = retorno[0]
-                preautorizacion = retorno[1]
-                cantidad_cheques = retorno[2]
-                estado_cheque = retorno[3]
-                estado_cuenta = retorno[4]
-                if estado_cuenta == 1:
-                    if estado_cheque != 'generado':
-                        mensaje = 'Cheque ya ha sido cambiado'
-                        dicci = {'form': form, 'mensaje': mensaje}
-                        return render(request, 'empresarial/preCheques.html', dicci)
-                    else:
-                        if float(monto) > float(monto_cuenta):
-                            mensaje = 'Monto no disponible en la cuenta'
-                            dicci = {'form': form, 'mensaje': mensaje}
-                            return render(request, 'empresarial/preCheques.html', dicci)
-                        else:
-                            if preautorizacion == 0:
-                                mensaje = 'No tiene la preautorizacion de Cheques activa'
-                                dicci = {'form': form, 'mensaje': mensaje}
-                                return render(request, 'empresarial/preCheques.html', dicci)
-                            else:
-                                cosulta = "select * from precheque where codigo = " + cheque + " and chequera = " + \
-                                          chequera + " and estado ='emitido' ;"
-                                c.execute(cosulta)
-                                retorno = c.fetchone()
-                                if retorno is None:
-                                    cosulta = "insert into precheque values(" + str(cheque) + "," + str(chequera) + "" \
-                                              ", 'emitido'," + str(monto) + ",'" + str(receptor) + "');"
-                                    c.execute(cosulta)
-                                    db.commit()
-                                    c.close()
-                                    mensaje = 'Cheque preautorizado con exito'
-                                    dicci = {'form': form, 'mensaje': mensaje}
-                                    return render(request, 'empresarial/preCheques.html', dicci)
-                                else:
-                                    mensaje = 'El cheque ya ha sido preautorizado'
-                                    dicci = {'form': form, 'mensaje': mensaje}
-                                    return render(request, 'empresarial/preCheques.html', dicci)
-                else:
-                    mensaje = 'La cuenta esta bloqueada, no se puede hacer transaccion de ningun tipo'
-                    dicci = {'form': form, 'mensaje': mensaje}
-                    return render(request, 'empresarial/preCheques.html', dicci)
-        else:
-            mensaje = 'Datos incompletos y/o incorrectos'
-            dicci = {'form': form, 'mensaje': mensaje}
-            return render(request, 'empresarial/preCheques.html', dicci)
+        return render(request, 'cuotasPres.html', dicci)
 
 
 def CalcularPrestamo(monto):
@@ -1013,6 +850,273 @@ def CalcularPrestamo(monto):
         lista1.append(round(total, 2))
         lista.append(lista1)
         return lista
+
+
+def estadoCEm(request):
+    usuario = str(request.session['usuario'])
+    db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+    c = db.cursor()
+    cosulta = "select * from c_empresarial inner join usuario on c_empresarial.usuario = usuario.codigo where usuario =" + usuario + ";"
+    c.execute(cosulta)
+    retorno = c.fetchone()
+    nombre = retorno[1]
+    representante = retorno[3]
+    nit = str(retorno[0])
+    direccion = retorno[4]
+    if request.method == 'GET':
+        cosulta = "select cuenta.codigo, cuenta.tipo, c_empresarial.nombre, cuenta.moneda, cuenta.monto, cuenta.estado " \
+                  "from c_empresarial, usuario, cuenta where c_empresarial.usuario = usuario.codigo and " \
+                  "usuario.codigo = cuenta.usuario and usuario.codigo = " + usuario + ";"
+        c.execute(cosulta)
+        retorno = c.fetchall()
+        lista = ConvertirTupla(retorno)
+        mensaje = 'Cuentas'
+        dicci = {'cuentas': lista, 'titulo': mensaje, 'nombre': nombre, 'representante': representante, 'nit': nit, 'direccion': direccion}
+        return render(request, 'empresarial/estadoCuenta.html', dicci)
+    else:
+        datos = request.POST
+        filtro = datos.get('Ingresar')
+        bloqueo = datos.get('Bloqueo')
+        histo = datos.get('Historial')
+        if filtro is not None:
+            if filtro == 'Monetaria':
+                cosulta = "select cuenta.codigo, cuenta.tipo, c_empresarial.nombre, cuenta.moneda, cuenta.monto, cuenta.estado " \
+                          "from c_empresarial, usuario, cuenta where c_empresarial.usuario = usuario.codigo and " \
+                          "usuario.codigo = cuenta.usuario and usuario.codigo = " + usuario + " " \
+                          " and cuenta.tipo = 'monetaria' ;"
+                c.execute(cosulta)
+                retorno = c.fetchall()
+                lista = ConvertirTupla(retorno)
+                mensaje = 'Cuentas Monetarias'
+                dicci = {'cuentas': lista, 'titulo': mensaje, 'nombre': nombre, 'representante': representante, 'nit': nit, 'direccion': direccion}
+                return render(request, 'empresarial/estadoCuenta.html', dicci)
+            elif filtro == 'Ahorro':
+                cosulta = "select cuenta.codigo, cuenta.tipo, c_empresarial.nombre, cuenta.moneda, cuenta.monto, cuenta.estado " \
+                          "from c_empresarial, usuario, cuenta where c_empresarial.usuario = usuario.codigo and " \
+                          "usuario.codigo = cuenta.usuario and usuario.codigo = " + usuario + " " \
+                          " and cuenta.tipo = 'ahorro' ;"
+                c.execute(cosulta)
+                retorno = c.fetchall()
+                lista = ConvertirTupla(retorno)
+                mensaje = 'Cuentas de ahorro'
+                dicci = {'cuentas': lista, 'titulo': mensaje, 'nombre': nombre, 'representante': representante, 'nit': nit, 'direccion': direccion}
+                return render(request, 'empresarial/estadoCuenta.html', dicci)
+            elif filtro == 'Plazo':
+                cosulta = "select cuenta.codigo, cuenta.tipo, c_empresarial.nombre, cuenta.moneda, cuenta.monto, cuenta.estado " \
+                          "from c_empresarial, usuario, cuenta where c_empresarial.usuario = usuario.codigo and " \
+                          "usuario.codigo = cuenta.usuario and usuario.codigo = " + usuario + " " \
+                          " and cuenta.tipo = 'plazo fijo' ;"
+                c.execute(cosulta)
+                retorno = c.fetchall()
+                lista = ConvertirTupla(retorno)
+                mensaje = 'Cuentas Plazo Fijo'
+                dicci = {'cuentas': lista, 'titulo': mensaje, 'nombre': nombre, 'representante': representante, 'nit': nit, 'direccion': direccion}
+                return render(request, 'empresarial/estadoCuenta.html', dicci)
+        elif bloqueo is not None:
+            cosulta = "select estado from cuenta where codigo = " + bloqueo + ";"
+            c.execute(cosulta)
+            retorno = c.fetchone()
+            if retorno[0] == 1:
+                consulta = 'update cuenta set estado = 0 where codigo = ' + bloqueo + ';'
+                print(consulta)
+                c.execute(consulta)
+                db.commit()
+                c.close()
+            else:
+                consulta = 'update cuenta set estado = 1 where codigo = ' + bloqueo + ';'
+                c.execute(consulta)
+                db.commit()
+                c.close()
+            return redirect('estadoCuentaEm')
+        elif histo is not None:
+            cosulta = "select moneda from cuenta where codigo = " + histo + ";"
+            c.execute(cosulta)
+            retorno = c.fetchone()
+            request.session['cuenta'] = histo
+            request.session['moneda'] = retorno[0]
+            return redirect('historialEm')
+
+
+def historialEm(request):
+    usuario = str(request.session['usuario'])
+    cuenta = str(request.session['cuenta'])
+    moneda = request.session['moneda']
+    print(cuenta)
+    db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+    c = db.cursor()
+    cosulta = "select * from transaccion where cuenta =" + cuenta + ";"
+    c.execute(cosulta)
+    retorno = c.fetchall()
+    mensaje = cuenta
+    dicci = {'cuentas': retorno, 'titulo': mensaje, 'moneda': moneda}
+    return render(request, 'empresarial/historial.html', dicci)
+
+
+def nuevaCEm(request):
+    usuario = str(request.session['usuario'])
+    if request.method == 'GET':
+        form = AgregarUsuarioForm()
+        dicci = {'form': form}
+        return render(request, 'empresarial/registrarCuenta.html', dicci)
+    else:
+        form = AgregarUsuarioForm(data=request.POST)
+        if form.is_valid():
+            datos = request.POST
+            cuenta = datos.get('cuenta')
+            nombre = datos.get('nombre')
+            db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+            c = db.cursor()
+            cosulta = 'select codigo, usuario from cuenta where codigo =' + cuenta + ";"
+            c.execute(cosulta)
+            retorno = c.fetchone()
+            if retorno is None:
+                mensaje = 'Cuenta no existe'
+                dicci = {'form': form, 'mensaje': mensaje}
+                return render(request, 'empresarial/registrarCuenta.html', dicci)
+            else:
+                terceros = str(retorno[0])
+                usuario_cuenta = str(retorno[1])
+                if usuario != usuario_cuenta:
+                    cosulta = "select * from cuenta_tercero where usuario = " + usuario + " and cuenta = " + terceros + ";"
+                    c.execute(cosulta)
+                    retorno = c.fetchone()
+                    if retorno is None:
+                        cosulta = "insert into cuenta_tercero values(" + usuario + "," + terceros + ",'" + nombre + "');"
+                        c.execute(cosulta)
+                        db.commit()
+                        c.close()
+                        mensaje = 'Cuenta registrada con exito'
+                        dicci = {'form': form, 'mensaje': mensaje}
+                        return render(request, 'empresarial/registrarCuenta.html', dicci)
+                    else:
+                        mensaje = 'No puede registrar, cuenta ya registrada'
+                        dicci = {'form': form, 'mensaje': mensaje}
+                        return render(request, 'empresarial/registrarCuenta.html', dicci)
+                else:
+                    mensaje = 'No puede registrar cuentas del mismo usuario'
+                    dicci = {'form': form, 'mensaje': mensaje}
+                    return render(request, 'empresarial/registrarCuenta.html', dicci)
+        else:
+            mensaje = 'Datos incompletos y/o incorrectos'
+            dicci = {'form': form, 'mensaje': mensaje}
+            return render(request, 'empresarial/registrarCuenta.html', dicci)
+
+
+def transferenciasEm(request):
+    usuario = str(request.session['usuario'])
+    db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+    c = db.cursor()
+    if request.method == 'GET':
+        mensaje = 'Seleccionar Opcion'
+        dicci = {'titulo': mensaje}
+        return render(request, 'empresarial/transferencias.html', dicci)
+    else:
+        datos = request.POST
+        filtro = datos.get('Cambio')
+        transferir = datos.get('Transferir')
+        if filtro is not None:
+            if filtro == 'Propio':
+                cosulta = "select codigo, tipo, moneda, monto from cuenta where usuario = " + usuario + " and tipo != 'plazo fijo' ;"
+                c.execute(cosulta)
+                cuentas1 = c.fetchall()
+                cosulta = "select codigo,tipo, moneda, monto from cuenta where usuario = " + usuario + ";"
+                c.execute(cosulta)
+                cuentas2 = c.fetchall()
+                mensaje = 'Cuentas Propias'
+                variable = True
+                dicci = {'titulo': mensaje, 'cuentas1': cuentas1, 'cuentas2': cuentas2, 'variable1': variable}
+                return render(request, 'empresarial/transferencias.html', dicci)
+            elif filtro == 'Tercero':
+                cosulta = "select codigo, tipo, moneda, monto from cuenta where usuario = " + usuario + " and tipo != 'plazo fijo' ;"
+                c.execute(cosulta)
+                cuentas1 = c.fetchall()
+                cosulta = "select cuenta, nombre from cuenta_tercero where usuario = " + usuario + ";"
+                c.execute(cosulta)
+                cuentas3 = c.fetchall()
+                mensaje = 'Cuentas a terceros'
+                variable = True
+                dicci = {'titulo': mensaje, 'cuentas1': cuentas1, 'cuentas3': cuentas3, 'variable2': variable}
+                return render(request, 'empresarial/transferencias.html', dicci)
+        elif transferir is not None:
+            mensaje = 'Transferencia Hecha'
+            dicci = {'mensaje': mensaje}
+            return render(request, 'empresarial/transferencias.html', dicci)
+
+
+def preChequeEm(request):
+    usuario = str(request.session['usuario'])
+    if request.method == 'GET':
+        form = chequeForm()
+        dicci = {'form': form}
+        return render(request, 'empresarial/preCheques.html', dicci)
+    else:
+        form = chequeForm(data=request.POST)
+        if form.is_valid():
+            datos = request.POST
+            cuenta = datos.get('cuenta')
+            chequera = datos.get('chequera')
+            monto = datos.get('monto')
+            cheque = datos.get('cheque')
+            receptor = datos.get('receptor')
+            db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+            c = db.cursor()
+            cosulta = "select cuenta.monto, cuenta.pre_cheques, chequera.cantidad, cheque.estado, cuenta.estado from cuenta, chequera," \
+                      " cheque where cuenta.codigo=chequera.cuenta and cheque.chequera=chequera.codigo " \
+                      "and cuenta.codigo = " + cuenta + " and chequera.codigo = " + chequera + " and " \
+                                                                                               "cheque.codigo = " + cheque + ";"
+            c.execute(cosulta)
+            retorno = c.fetchone()
+            if retorno is None:
+                mensaje = 'Datos incorrectos, cuenta, chequera o cheque inexistente'
+                dicci = {'form': form, 'mensaje': mensaje}
+                return render(request, 'empresarial/preCheques.html', dicci)
+            else:
+                monto_cuenta = retorno[0]
+                preautorizacion = retorno[1]
+                cantidad_cheques = retorno[2]
+                estado_cheque = retorno[3]
+                estado_cuenta = retorno[4]
+                if estado_cuenta == 1:
+                    if estado_cheque != 'generado':
+                        mensaje = 'Cheque ya ha sido cambiado'
+                        dicci = {'form': form, 'mensaje': mensaje}
+                        return render(request, 'empresarial/preCheques.html', dicci)
+                    else:
+                        if float(monto) > float(monto_cuenta):
+                            mensaje = 'Monto no disponible en la cuenta'
+                            dicci = {'form': form, 'mensaje': mensaje}
+                            return render(request, 'empresarial/preCheques.html', dicci)
+                        else:
+                            if preautorizacion == 0:
+                                mensaje = 'No tiene la preautorizacion de Cheques activa'
+                                dicci = {'form': form, 'mensaje': mensaje}
+                                return render(request, 'empresarial/preCheques.html', dicci)
+                            else:
+                                cosulta = "select * from precheque where codigo = " + cheque + " and chequera = " + \
+                                          chequera + " and estado ='emitido' ;"
+                                c.execute(cosulta)
+                                retorno = c.fetchone()
+                                if retorno is None:
+                                    cosulta = "insert into precheque values(" + str(cheque) + "," + str(chequera) + "" \
+                                              ", 'emitido'," + str(monto) + ",'" + str(receptor) + "');"
+                                    c.execute(cosulta)
+                                    db.commit()
+                                    c.close()
+                                    mensaje = 'Cheque preautorizado con exito'
+                                    dicci = {'form': form, 'mensaje': mensaje}
+                                    return render(request, 'empresarial/preCheques.html', dicci)
+                                else:
+                                    mensaje = 'El cheque ya ha sido preautorizado'
+                                    dicci = {'form': form, 'mensaje': mensaje}
+                                    return render(request, 'empresarial/preCheques.html', dicci)
+                else:
+                    mensaje = 'La cuenta esta bloqueada, no se puede hacer transaccion de ningun tipo'
+                    dicci = {'form': form, 'mensaje': mensaje}
+                    return render(request, 'empresarial/preCheques.html', dicci)
+        else:
+            mensaje = 'Datos incompletos y/o incorrectos'
+            dicci = {'form': form, 'mensaje': mensaje}
+            return render(request, 'empresarial/preCheques.html', dicci)
 
 
 def planillas(request):

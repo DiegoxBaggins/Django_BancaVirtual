@@ -28,6 +28,9 @@ urlpatterns = [
     path('preCheque', views.preCheque, name='preautorizar'),
     path('tarjetas', views.estadoTar, name='tarjetas'),
     path('tarjetas/historial',views.historialT, name='historialT'),
+    path('prestamo', views.solicitarPrestamo, name='prestamo'),
+    path('misPrestamos', views.estadoPres, name='estadoPrestamo'),
+    path('misPrestamos/cuotas', views.cuotasPres, name='cuotasEs'),
 
     path('empresarial/transferencias', views.transferenciasEm, name='transferenciasEm'),
     path('empresarial/estadoCuenta', views.estadoCEm, name='estadoCuentaEm'),
@@ -35,7 +38,6 @@ urlpatterns = [
     path('empresarial/nuevaCuenta', views.nuevaCEm, name='cuentaTercerosEm'),
     path('empresarial/preCheque', views.preChequeEm, name='preautorizarEm'),
 
-    path('prestamo', views.prestamo, name='prestamo'),
     path('planillas', views.planillas, name='planillas'),
     path('proveedores', views.proveedores, name='proveedores'),
 
