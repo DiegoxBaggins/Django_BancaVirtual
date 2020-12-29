@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  {% load static %}
+  <link rel="stylesheet" href="{%static 'css/stylePrestamo.css' %}">
+  <title>Estado de Cuentas</title>
+</head>
+<header class="divs-Header">
+  <div class="divs-logins">
+        <a class="titulos-header" href="{% url 'inicioEmpresarial' %}">Menu principal</a>
+    <a class="titulos-header" href="{% url 'index1' %}"> Salir</a>
+  </div>
+</header>
+<body>
+<div class="div-Global">
+    <div class="divs-Principales">
+      <h4 class="titulos-princ">Cuentas en el Banco El Ahorro</h4>
+    </div>
+  <form method="post">
+        {% csrf_token %}
+      <div class="divs-derecha">
+        <h4 class="titulos-princ">Solicitudes de Prestamos</h4>
+        <br>
+        {% for codigo, monto, descripcion, plazo, estado, cuota, interes, usuario, solicitud in lista %}
+        <h4 class="letra-elementos">Prestamo: {{ codigo }}</h4>
+        <br>
+        <h4 class="letra-elementos">Descripcion: {{ descripcion }}</h4>
+        <br>
+        <h4 class="letra-elementos">Monto: {{ monto }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Plazo: {{ plazo }} meses &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Estado: {{ estado }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Interes: {{ interes }}%</h4>
+        <br>
+        <button class="boton-bloq" type="submit" value= "{{ codigo }}" name="historial">Ver Cuotas</button>
+        <br>
+        {% endfor%}
+      </div>
+  </form>
+</div>
+</body>
+<footer class="footer">
+  <h4 class="letra-elementos">Banco El Ahorro - 2020</h4>
+</footer>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+ {% load static %}
+  <link rel="stylesheet" href="{%static 'css/stylePrestamo.css' %}">
+  <title>Solicitar Prestamo</title>
+</head>
+<header class="divs-Header">
+  <div class="divs-logins">
+    <a class="titulos-header" href="{% url 'inicioEmpresarial' %}">Menu principal</a>
+    <a class="titulos-header" href="{% url 'index1' %}"> Salir</a>
+  </div>
+</header> 
+<body>
+  <div class="div-Global">
+    <div class="divs-Principales">
+      <h4 class="titulos-princ">Solicitar Prestamo</h4>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      <div class="divs-derecha">
+        <h4 class="letra-elementos">Formulario de prestamo:</h4>
+        <br>
+        {{ form.as_p }}
+        <br>
+         <button class="boton-bloq" type="submit" value="Calcular" name="Calcular">Calcular</button>
+        <br>
+         <h4 class="letra-elementos">{{ mensaje }}</h4>
+        {% if variable1 %}
+        <table border="1">
+          <caption>Precios</caption>
+          <tbody>
+          <tr>
+              <td>monto</td>
+              <td>meses</td>
+              <td>cuota</td>
+              <td>interes</td>
+              <td>pago interes</td>
+            </tr>
+          {% for monto, plazo, cuota, interes, pago in prestamos %}
+            <tr>
+              <td>{{ monto }}</td>
+              <td>{{ plazo }}</td>
+              <td>{{ cuota }}</td>
+              <td>{{ interes }}</td>
+              <td>{{ pago }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        <br>
+        <button class="boton-bloq" type="submit" value="Solicitar" name="Solicitar">Solicitar</button>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</body>
+  <footer class="footer">
+  <h4 class="letra-elementos">Banco El Ahorro - 2020</h4>
+  </footer>
+</html>

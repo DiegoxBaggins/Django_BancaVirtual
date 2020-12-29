@@ -114,9 +114,11 @@ def inicioEm(request):
         elif valor == 'Terceros':
             return redirect('cuentaTercerosEm')
         elif valor == 'Prestamo':
-            return redirect('prestamo')
-        elif valor == 'Servicios':
-            return redirect('pagos')
+            return redirect('prestamoEm')
+        elif valor == 'Prestamos':
+            return redirect('estadoPrestamoEm')
+        elif valor == 'Tarjeta':
+            return redirect('tarjetasEm')
         elif valor == 'Preautorizar':
             return redirect('preautorizarEm')
         elif valor == 'Planilla':
@@ -1119,10 +1121,225 @@ def preChequeEm(request):
             return render(request, 'empresarial/preCheques.html', dicci)
 
 
+def estadoTarEm(request):
+    usuario = str(request.session['usuario'])
+    db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+    c = db.cursor()
+    cosulta = "select * from c_empresarial inner join usuario on c_empresarial.usuario = usuario.codigo where usuario ="+ usuario + ";"
+    c.execute(cosulta)
+    retorno = c.fetchone()
+    nombre = retorno[2]
+    cui = str(retorno[0])
+    nit = str(retorno[1])
+    direccion = retorno[3]
+    if request.method == 'GET':
+        cosulta = "select * from tcredito where usuario = " + usuario + ";"
+        c.execute(cosulta)
+        retorno = c.fetchall()
+        lista = ConvertirTarjeta(retorno)
+        dicci = {'cuentas': lista, 'nombre': nombre, 'cui': cui, 'nit': nit, 'direccion': direccion}
+        return render(request, 'empresarial/estadoTarjeta.html', dicci)
+    else:
+        datos = request.POST
+        histo = datos.get('Historial')
+        request.session['tarjeta'] = histo
+        return redirect('historialTEm')
+
+
+def historialTEm(request):
+    usuario = str(request.session['usuario'])
+    tarjeta = str(request.session['tarjeta'])
+    db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+    c = db.cursor()
+    cosulta = "select * from transtarjeta where tarjeta = " + tarjeta + ";"
+    c.execute(cosulta)
+    retorno = c.fetchall()
+    mensaje = tarjeta
+    dicci = {'cuentas': retorno, 'titulo': mensaje}
+    return render(request, 'empresarial/historialTarjeta.html', dicci)
+
+
+def solicitarPrestamoEm(request):
+    usuario = str(request.session['usuario'])
+    if request.method == 'GET':
+        form = PrestamoForm()
+        dicci = {'form': form}
+        return render(request, 'empresarial/prestamos.html', dicci)
+    else:
+        form = PrestamoForm(data=request.POST)
+        if form.is_valid():
+            datos = request.POST
+            monto = datos.get('monto')
+            descripcion = datos.get('descripcion')
+            plazo = datos.get('plazo')
+            calcular = datos.get('Calcular')
+            solicitar = datos.get('Solicitar')
+            if calcular is not None:
+                lista = CalcularPrestamo(float(monto))
+                mensaje = 'Puede modificar la informacion antes de enviarla'
+                dicci = {'form': form, 'mensaje': mensaje, 'prestamos': lista, 'variable1': True}
+                return render(request, 'empresarial/prestamos.html', dicci)
+            if solicitar is not None:
+                db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+                c = db.cursor()
+                cosulta = "insert into soliprestamo (monto, descripcion, plazo, estado, usuario) values (" + str(monto) + ",'" + str(descripcion) \
+                + "'," + str(plazo) + ",'enviado'," + str(usuario) + ");"
+                c.execute(cosulta)
+                db.commit()
+                mensaje = 'Prestamo solicitado con exito'
+                dicci = {'form': form, 'mensaje': mensaje}
+                return render(request, 'empresarial/prestamos.html', dicci)
+        else:
+            mensaje = 'Datos incompletos y/o incorrectos'
+            dicci = {'form': form, 'mensaje': mensaje}
+            return render(request, 'empresarial/prestamos.html', dicci)
+
+
+def estadoPresEm(request):
+    usuario = str(request.session['usuario'])
+    db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+    c = db.cursor()
+    cosulta = "select * from prestamo where usuario =" + str(usuario) + ";"
+    c.execute(cosulta)
+    retorno = c.fetchall()
+    if request.method == 'GET':
+        dicci = {'lista': retorno}
+        return render(request, 'empresarial/estadoPres.html', dicci)
+    else:
+        datos = request.POST
+        histo = datos.get('historial')
+        request.session['prestamo'] = histo
+        return redirect('cuotasEsEm')
+
+
+def cuotasPresEm(request):
+    usuario = str(request.session['usuario'])
+    prestamo = str(request.session['prestamo'])
+    db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+    c = db.cursor()
+    cosulta = "select * from cuotas where prestamo =" + prestamo + ";"
+    c.execute(cosulta)
+    retorno = c.fetchall()
+    cosulta = "select codigo, tipo, moneda, monto from cuenta where usuario = " + usuario + " and tipo != 'plazo fijo' ;"
+    c.execute(cosulta)
+    cuentas1 = c.fetchall()
+    titulo = prestamo
+    dicci = {'cuentas': retorno, 'titulo': titulo, 'cuentas1': cuentas1}
+    if request.method == 'POST':
+        datos = request.POST
+        cuenta = datos.get('select1')
+        boton = datos.get('historial')
+        if boton == 'pagar':
+            fecha_actual = date.today()
+            mes_actual = int(fecha_actual.strftime("%m"))
+            ano_actual = int(fecha_actual.strftime("%Y"))
+            cosulta = "select * from cuotas where prestamo =" + prestamo + " and month(fecha) = " + str(mes_actual) + " and " \
+            " year(fecha) = " + str(ano_actual) + " and estado = 'pendiente';"
+            c.execute(cosulta)
+            retorno = c.fetchone()
+            if retorno is None:
+                dicci['mensaje'] = 'Cuota del mes ya esta pagada'
+                return render(request, 'empresarial/cuotasPres.html', dicci)
+            else:
+                codigo_cuota = retorno[1]
+                monto_cuota = retorno[3]
+                interes_cuota = retorno[4]
+                cosulta = "select * from cuenta where codigo =" + cuenta + ";"
+                c.execute(cosulta)
+                retorno = c.fetchone()
+                monto_cuenta = retorno[2]
+                estado_cuenta = retorno[3]
+                if estado_cuenta == 0 or float(monto_cuota) > float(monto_cuenta):
+                    dicci['mensaje'] = 'La cuenta esta bloqueada o no hay dinero suficiente para pagar'
+                    return render(request, 'empresarial/cuotasPres.html', dicci)
+                else:
+                    pagar = ((float(interes_cuota)/100) + 1) * float(monto_cuota)
+                    nuevo_monto = float(monto_cuenta) - pagar
+                    cosulta = "update cuotas set estado = 'pagado' where prestamo = " + prestamo + " and cuota = " + str(codigo_cuota) + ";"
+                    c.execute(cosulta)
+                    db.commit()
+                    cosulta = "update cuotas set pago = " + str(pagar) + " where prestamo = " + prestamo + " and cuota = " + str(codigo_cuota) + ";"
+                    c.execute(cosulta)
+                    db.commit()
+                    cosulta = "update cuotas set fecha = '" + str(fecha_actual) + "' where prestamo = " + prestamo + " and cuota = " + str(codigo_cuota) + ";"
+                    c.execute(cosulta)
+                    db.commit()
+                    cosulta = "update cuenta set monto = " + str(nuevo_monto) + " where codigo = " + cuenta + ";"
+                    c.execute(cosulta)
+                    db.commit()
+                    consulta = "insert into transaccion (monto, fecha, descripcion, tipo, cuenta) values (" + \
+                               str(pagar) + ",'" + str(fecha_actual) + "','Pago de prestamo " + str(prestamo) + "','retiro'," + cuenta + ');'
+                    c.execute(consulta)
+                    db.commit()
+                    c.close()
+                    return redirect('cuotasEsEm')
+        elif boton == 'adelantar':
+            fecha_actual = date.today()
+            mes_actual = int(fecha_actual.strftime("%m"))
+            ano_actual = int(fecha_actual.strftime("%Y"))
+            cosulta = "select * from cuotas where prestamo =" + prestamo + " and month(fecha) = " + str(
+                mes_actual) + " and " \
+                              " year(fecha) = " + str(ano_actual) + " and estado = 'pendiente';"
+            c.execute(cosulta)
+            retorno = c.fetchone()
+            if retorno is not None:
+                dicci['mensaje'] = 'Cuota del mes actual no ha sido pagada, no puede adelantar pagos'
+                return render(request, 'empresarial/cuotasPres.html', dicci)
+            else:
+                cosulta = "select * from cuotas where prestamo =" + prestamo + " and estado = 'pendiente' order by cuota limit 1;"
+                c.execute(cosulta)
+                retorno = c.fetchone()
+                if retorno is None:
+                    cosulta = "update prestamo set estado = 'pagado' where codigo = " + prestamo + ";"
+                    c.execute(cosulta)
+                    db.commit()
+                    dicci['mensaje'] = 'Todas las cuotas han sido pagadas'
+                    return render(request, 'empresarial/cuotasPres.html', dicci)
+                else:
+                    codigo_cuota = retorno[1]
+                    monto_cuota = retorno[3]
+                    interes_cuota = retorno[4]
+                    cosulta = "select * from cuenta where codigo =" + cuenta + ";"
+                    c.execute(cosulta)
+                    retorno = c.fetchone()
+                    monto_cuenta = retorno[2]
+                    estado_cuenta = retorno[3]
+                    if estado_cuenta == 0 or float(monto_cuota) > float(monto_cuenta):
+                        dicci['mensaje'] = 'La cuenta esta bloqueada o no hay dinero suficiente para pagar'
+                        return render(request, 'empresarial/cuotasPres.html', dicci)
+                    else:
+                        pagar = float(monto_cuota)
+                        nuevo_monto = float(monto_cuenta) - pagar
+                        cosulta = "update cuotas set estado = 'adelantado' where prestamo = " + prestamo + " and cuota = " + str(
+                            codigo_cuota) + ";"
+                        c.execute(cosulta)
+                        db.commit()
+                        cosulta = "update cuotas set pago = " + str(
+                            pagar) + " where prestamo = " + prestamo + " and cuota = " + str(codigo_cuota) + ";"
+                        c.execute(cosulta)
+                        db.commit()
+                        cosulta = "update cuotas set fecha = '" + str(
+                            fecha_actual) + "' where prestamo = " + prestamo + " and cuota = " + str(codigo_cuota) + ";"
+                        c.execute(cosulta)
+                        db.commit()
+                        cosulta = "update cuenta set monto = " + str(nuevo_monto) + " where codigo = " + cuenta + ";"
+                        c.execute(cosulta)
+                        db.commit()
+                        consulta = "insert into transaccion (monto, fecha, descripcion, tipo, cuenta) values (" + \
+                                   str(pagar) + ",'" + str(fecha_actual) + "','Pago de prestamo " + str(
+                            prestamo) + "','retiro'," + cuenta + ');'
+                        c.execute(consulta)
+                        db.commit()
+                        c.close()
+                        return redirect('cuotasEsEm')
+    else:
+        return render(request, 'empresarial/cuotasPres.html', dicci)
+
+
 def planillas(request):
-    return render(request, 'planillas.html')
+    return render(request, 'empresarial/planillas.html')
 
 
 def proveedores(request):
-    return render(request, 'proveedores.html')
+    return render(request, 'empresarial/proveedores.html')
 
