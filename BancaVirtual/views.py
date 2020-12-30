@@ -441,8 +441,14 @@ def ConvertirTarjeta(retorno):
     for elementos in lista:
         if elementos[4] == 'prefepuntos':
             elementos.append(True)
+            monto = float(elementos[2]) / 7.63
+            monto = round(monto, 2)
+            elementos.append(monto)
         else:
             elementos.append(False)
+            monto = float(elementos[2]) / 7.87
+            monto = round(monto, 2)
+            elementos.append(monto)
     return lista
 
 
@@ -520,7 +526,7 @@ def cuotasPres(request):
     cosulta = "select * from cuotas where prestamo =" + prestamo + ";"
     c.execute(cosulta)
     retorno = c.fetchall()
-    cosulta = "select codigo, tipo, moneda, monto from cuenta where usuario = " + usuario + " and tipo != 'plazo fijo' ;"
+    cosulta = "select codigo, tipo, moneda, monto from cuenta where usuario = " + usuario + " and tipo != 'plazo fijo' and moneda = 'Q';"
     c.execute(cosulta)
     cuentas1 = c.fetchall()
     titulo = prestamo
@@ -1220,7 +1226,7 @@ def cuotasPresEm(request):
     cosulta = "select * from cuotas where prestamo =" + prestamo + ";"
     c.execute(cosulta)
     retorno = c.fetchall()
-    cosulta = "select codigo, tipo, moneda, monto from cuenta where usuario = " + usuario + " and tipo != 'plazo fijo' ;"
+    cosulta = "select codigo, tipo, moneda, monto from cuenta where usuario = " + usuario + " and tipo != 'plazo fijo' and moneda = 'Q';"
     c.execute(cosulta)
     cuentas1 = c.fetchall()
     titulo = prestamo

@@ -56,21 +56,94 @@ def index(request):
 
 def inicio(request):
     if request.method == 'GET':
-        return render(request, 'compras/inicio.html')
+        form = CompraForm()
+        dicci = {'form': form}
+        return render(request, 'compras/inicio.html', dicci)
     else:
-        datos = request.POST
-        valor = datos.get('Ingresar')
-        if valor == 'Estado':
-            return redirect('estadoCuenta')
-        elif valor == 'Transferencia':
-            return redirect('transferencias')
-        elif valor == 'Terceros':
-            return redirect('cuentaTerceros')
-        elif valor == 'Prestamo':
-            return redirect('prestamo')
-        elif valor == 'Tarjeta':
-            return redirect('tarjetas')
-        elif valor == 'Preautorizar':
-            return redirect('preautorizar')
-        elif valor == 'Prestamos':
-            return redirect('estadoPrestamo')
+        form = CompraForm(data=request.POST)
+        if form.is_valid():
+            datos = request.POST
+            tarjeta = datos.get('tarjeta')
+            seguridad = datos.get('seguridad')
+            monto = datos.get('monto')
+            moneda = datos.get('moneda')
+            descripcion = datos.get('descripcion')
+            fecha = datos.get('fecha')
+            db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+            c = db.cursor()
+            cosulta = 'select * from tcredito where numero = ' + str(tarjeta) + " and seguridad = "+ str(seguridad)  + " ;"
+            c.execute(cosulta)
+            retorno = c.fetchone()
+            if retorno is None:
+                mensaje = 'Tarjeta Inexistente o codigo de seguridad incorrecto'
+                dicci = {'form': form, 'mensaje': mensaje}
+                return render(request, 'compras/inicio.html', dicci)
+            else:
+                limite = retorno[2]
+                gasto = retorno[3]
+                marca = retorno[4]
+                bono = retorno[6]
+                gasto_permitido = float(limite) - float(gasto)
+                puntos = calcularPuntos(float(monto), marca, moneda)
+                if float(puntos[1]) > gasto_permitido:
+                    mensaje = 'El gasto actual ya no permite la compra, supera el limite de la tarjeta'
+                    dicci = {'form': form, 'mensaje': mensaje}
+                    return render(request, 'compras/inicio.html', dicci)
+                else:
+                    nuevo_gasto = float(gasto) + float(puntos[1])
+                    nuevo_bono = float(bono) + puntos[0]
+                    cosulta = "update tcredito set gasto = " + str(nuevo_gasto) + " where numero = " + str(tarjeta) + ";"
+                    c.execute(cosulta)
+                    db.commit()
+                    cosulta = "update tcredito set bono = " + str(nuevo_bono) + " where numero = " + str(tarjeta) + ";"
+                    c.execute(cosulta)
+                    db.commit()
+                    cosulta = "insert into transtarjeta (monto,fecha,descripcion,tipo,porcentaje,tarjeta) values " \
+                              "(" + str(monto) + ",'" + str(fecha) + "','" + str(descripcion) + "','" + moneda + "'," \
+                              " 1," + str(tarjeta) + ");"
+                    c.execute(cosulta)
+                    db.commit()
+                    if marca == 'prefepuntos':
+                        cosulta = "insert into transtarjeta (monto,fecha,descripcion,tipo,porcentaje,tarjeta) values " \
+                                  "(" + str(puntos[0]) + ",'" + str(fecha) + "','" + str(
+                            descripcion) + "','puntos',1," + str(tarjeta) + ");"
+                        c.execute(cosulta)
+                        db.commit()
+                    else:
+                        cosulta = "insert into transtarjeta (monto,fecha,descripcion,tipo,porcentaje,tarjeta) values " \
+                                  "(" + str(puntos[0]) + ",'" + str(fecha) + "','" + str(descripcion) + "','cashback',1," + str(tarjeta) + ");"
+                        c.execute(cosulta)
+                        db.commit()
+                    mensaje = 'Compra registrada con exito'
+                    dicci = {'form': form, 'mensaje': mensaje}
+                    return render(request, 'compras/inicio.html', dicci)
+
+
+def calcularPuntos(monto, marca, moneda):
+    if marca == 'prefepuntos':
+        if moneda == '$':
+            monto = monto * 7.63
+        if monto <= 100.00:
+            puntos = 0
+            return puntos, monto
+        elif 100.00 < monto <= 500.00:
+            puntos = monto * 0.02
+            return puntos, monto
+        elif 500.00 < monto <= 2000.00:
+            puntos = monto * 0.04
+            return puntos, monto
+        elif monto > 2000.00:
+            puntos = monto * 0.05
+            return puntos, monto
+    elif marca == 'cashback':
+        if moneda == '$':
+            monto = monto * 7.87
+        if monto <= 200.00:
+            puntos = 0
+            return puntos, monto
+        elif 200.00 < monto <= 700.00:
+            puntos = monto * 0.02
+            return puntos, monto
+        elif monto > 700.00:
+            puntos = monto * 0.05
+            return puntos, monto

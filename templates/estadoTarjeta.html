@@ -28,17 +28,17 @@
          <h4 class="letra-elementos">Direccion: {{ direccion }}</h4>
           <h4 class="titulos-princ">Tarjetas de credito</h4>
         <br>
-        {% for codigo, seguridad, limite, gasto, marca, usuario, bono, tipo1 in cuentas %}
+        {% for codigo, seguridad, limite, gasto, marca, usuario, bono, tipo1, dolares in cuentas %}
         <h4 class="letra-elementos">Tarjeta: {{marca}} {{ codigo }}  </h4>
         <br>
-        <h4 class="letra-elementos">Saldo: {{ gasto }}</h4>
+        <h4 class="letra-elementos">Saldo: Q{{ gasto }}</h4>
         <br>
-        <h4 class="letra-elementos">Limite: {{ limite }}</h4>
+        <h4 class="letra-elementos">Limite: Q{{ limite }} ${{dolares}}</h4>
         <br>
         {% if tipo1 %}
-        <h4 class="letra-elementos">Puntos: {{ estado }}</h4>
+        <h4 class="letra-elementos">Puntos: {{ bono }}</h4>
         {% else %}
-        <h4 class="letra-elementos">CashBack: {{ estado }}</h4>
+        <h4 class="letra-elementos">CashBack:Q {{ bono }}</h4>
         {% endif %}
         <button class="boton-bloq" type="submit" value= "{{ codigo }}" name="Historial">Historial</button>
         <br>
