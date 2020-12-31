@@ -1426,11 +1426,11 @@ def planillas(request):
                     c.execute(cosulta)
                     db.commit()
                     consulta = "insert into transaccion (monto, fecha, descripcion, tipo, cuenta) values (" + \
-                               str(sueldo_destino) + ",'" + str(fecha_actual) + "','Pago de planilla ','retiro'," + cuenta_origen + ');'
+                               str(sueldo_destino) + ",'" + str(fecha_actual) + "','Pago a proveedores ','retiro'," + cuenta_origen + ');'
                     c.execute(consulta)
                     db.commit()
                     consulta = "insert into transaccion (monto, fecha, descripcion, tipo, cuenta) values (" + \
-                               str(sueldo_destino) + ",'" + str(fecha_actual) + "','Pago de planilla ','deposito'," + cuenta_destino + ');'
+                               str(sueldo_destino) + ",'" + str(fecha_actual) + "','Pago de cliente','deposito'," + cuenta_destino + ');'
                     c.execute(consulta)
                     db.commit()
                 return redirect('planillas')
@@ -1459,6 +1459,86 @@ def cargaMasiva(archivo, usuario):
 
 
 def proveedores(request):
-    return render(request, 'empresarial/proveedores.html')
+    usuario = str(request.session['usuario'])
+    fecha_actual = date.today()
+    db = MySQLdb.connect(host=host, user=user, password=contra, db=db_name, connect_timeout=5)
+    c = db.cursor()
+    if request.method == 'GET':
+        return render(request, 'empresarial/proveedores.html')
+    else:
+        datos = request.POST
+        clasificar = datos.get('Ingresar')
+        enviar = datos.get('Enviar')
+        if clasificar is not None:
+            if clasificar == 'Formulario':
+                form = PlanillaForm()
+                var1 = True
+                dicci = {'form': form, 'var1': var1}
+                return render(request, 'empresarial/proveedores.html', dicci)
+            elif clasificar == 'Pagar':
+                var3 = True
+                cosulta = "select codigo, tipo, moneda, monto from cuenta where usuario = " + usuario + " and tipo != 'plazo fijo' and moneda = 'Q';"
+                c.execute(cosulta)
+                cuentas1 = c.fetchall()
+                dicci = {'var3': var3, 'cuentas1': cuentas1}
+                return render(request, 'empresarial/proveedores.html', dicci)
+        elif enviar is not None:
+            if enviar == 'Formulario':
+                form = PlanillaForm(data=request.POST)
+                datos = request.POST
+                cuenta = datos.get('cuenta')
+                nombre = datos.get('nombre')
+                sueldo = datos.get('sueldo')
+                cosulta = "select * from cuenta where codigo = " + cuenta + ";"
+                c.execute(cosulta)
+                cuentas1 = c.fetchone()
+                if cuentas1 is None:
+                    var2 = True
+                    dicci = {'form': form, 'var2': var2, 'mensaje': 'Cuenta no existe'}
+                    return render(request, 'empresarial/proveedores.html', dicci)
+                else:
+                    cosulta = "insert into proveedor values (" + cuenta + ",'" + nombre + "'," + sueldo + ",1," + usuario + ");"
+                    c.execute(cosulta)
+                    db.commit()
+                    var2 = True
+                    dicci = {'form': form, 'var2': var2, 'mensaje': 'Cuenta registrada con exito'}
+                    return render(request, 'empresarial/proveedores.html', dicci)
+            if enviar == 'Pagar':
+                datos = request.POST
+                cuenta_origen = str(datos.get('select1'))
+                cosulta = "select * from proveedor where usuario = " + usuario + ";"
+                c.execute(cosulta)
+                cuentas_varias = c.fetchall()
+                for elementos in cuentas_varias:
+                    cuenta_destino = str(elementos[0])
+                    sueldo_destino = float(elementos[2])
+                    cosulta = "select monto from cuenta where codigo = " + cuenta_origen + ";"
+                    c.execute(cosulta)
+                    retorno = c.fetchone()
+                    inicial_origen = float(retorno[0])
+                    cosulta = "select monto from cuenta where codigo = " + cuenta_destino + ";"
+                    c.execute(cosulta)
+                    retorno = c.fetchone()
+                    inicial_destino = float(retorno[0])
+                    final_origen = inicial_origen - sueldo_destino
+                    final_destino = inicial_destino + sueldo_destino
+                    cosulta = "update cuenta set monto = " + str(final_origen) + "where codigo = " + cuenta_origen + ";"
+                    c.execute(cosulta)
+                    db.commit()
+                    cosulta = "update cuenta set monto = " + str(
+                        final_destino) + "where codigo = " + cuenta_destino + ";"
+                    c.execute(cosulta)
+                    db.commit()
+                    consulta = "insert into transaccion (monto, fecha, descripcion, tipo, cuenta) values (" + \
+                               str(sueldo_destino) + ",'" + str(
+                        fecha_actual) + "','Pago de planilla ','retiro'," + cuenta_origen + ');'
+                    c.execute(consulta)
+                    db.commit()
+                    consulta = "insert into transaccion (monto, fecha, descripcion, tipo, cuenta) values (" + \
+                               str(sueldo_destino) + ",'" + str(
+                        fecha_actual) + "','Pago de planilla ','deposito'," + cuenta_destino + ');'
+                    c.execute(consulta)
+                    db.commit()
+                return redirect('proveedores')
 
 

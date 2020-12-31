@@ -2,56 +2,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
 {% load static %}
-  <link rel="stylesheet" href="{%static 'css/styleProveedores.css' %}">
+  <link rel="stylesheet" href="{%static 'css/stylePlanillas.css' %}">
   <title>Pagar Proveedores</title>
 </head>
 <header class="divs-Header">
   <div class="divs-logins">
-    <h4 class="titulos-header">Pantalla Principal  -  Salir</h4>
+    <a class="titulos-header" href="{% url 'inicioEmpresarial' %}">Menu principal</a>
+    <a class="titulos-header" href="{% url 'index1' %}"> Salir</a>
   </div>
 </header>
 <body>
   <div class="div-Global">
     <div class="divs-Principales">
-      <h4 class="titulos-princ">Pagar a Proveedores</h4>
+      <h4 class="titulos-princ">Pagar Proveedores</h4>
     </div>
-    <div class="divs-izquierda">
-      <h4 class="titulos-princ">Opciones</h4>
-      <br>
-      <input class="botons" type="submit" value="Pagar a Proveedor">
-      <input class="botons" type="submit" value="Programar Pago">
-    </div>
-    <div class="divs-derecha">
-      <h4 class="titulos-princ">Programar Pago</h4>
-      <br>
-      <h4 class="letra-elementos">Cuenta de origen</h4>
-      <br>
-      <select name="select" class="boxes">
-        <option value="value2" selected>Cuenta de ahorro 14BDGYR741F - Q4500.12</option>
-        <option value="value3">Cuentas de ahorro 54BDGER128G - Q12452.65</option>
-      </select>
-      <br>
-      <h4 class="letra-elementos">Monto</h4>
-      <br>
-      <input class="text-box" type="text" name="User" id="User" placeholder="Ingrese el monto a Transferir Q0.00">
-      <br>
-      <br>
-      <h4 class="letra-elementos">Cuenta de destino</h4>
-      <br>
-      <select name="select" class="boxes">
-        <option value="value1">Cuentas monetaria 14BDSFE741F - Juan Garcia</option>
-        <option value="value2" selected>Cuentas de ahorro 54BDFE2438G - Erick Castro</option>
-      </select>
-      <br>
-      <h4 class="letra-elementos">Opciones de pago</h4>
-      <br>
-      <select name="select" class="boxes">
-        <option value="value1" selected>Quincenalmente</option>
-        <option value="value2">Mensualmente</option>
-      </select>
-      <br>
-      <input class="boton-bloq" type="submit" value="Programar">
-    </div>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="divs-izquierda">
+        <h4 class="titulos-princ">Opciones</h4>
+        <br>
+        <button class="botons" type="submit" value="Formulario" name="Ingresar">Registrar Nuevo</button>
+        <button class="botons" type="submit" value="Pagar" name="Ingresar">Realizar Pago</button>
+      </div>
+      <div class="divs-derecha">
+        {% if var1 %}
+        {{ form.as_p }}
+        <button class="boton-bloq" type="submit" value="Formulario" name="Enviar">Registrar</button>
+        {% elif var3 %}
+        <select name="select1" class="boxes">
+        {% for codigo, tipo, moneda, monto in cuentas1 %}
+        <option value="{{ codigo }}" selected>Cuenta {{ tipo }} {{ codigo }} - {{ moneda }}{{monto}}</option>
+        {% endfor%}
+        </select>
+        <br>
+        <button class="boton-bloq" type="submit" value="Pagar" name="Enviar">Pagar</button>
+        {% endif %}
+        <h4 class="letra-elementos">{{ mensaje }}</h4>
+      </div>
+    </form>
   </div>
 </body>
   <footer class="footer">
