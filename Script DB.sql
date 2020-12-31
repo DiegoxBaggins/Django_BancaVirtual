@@ -186,6 +186,9 @@ foreign key (cuenta) references cuenta(codigo),
 foreign key (usuario) references usuario(codigo)
 );
 
+
+insert into usuario values(1022,'1022',0,1,0,0);
+
 insert into tipo_empresa values ('Com', 'Comida');
 insert into tipo_empresa values ('Sum', 'Suministros');
 

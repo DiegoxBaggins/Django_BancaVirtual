@@ -1426,11 +1426,11 @@ def planillas(request):
                     c.execute(cosulta)
                     db.commit()
                     consulta = "insert into transaccion (monto, fecha, descripcion, tipo, cuenta) values (" + \
-                               str(sueldo_destino) + ",'" + str(fecha_actual) + "','Pago a proveedores ','retiro'," + cuenta_origen + ');'
+                               str(sueldo_destino) + ",'" + str(fecha_actual) + "','Pago de planillas','retiro'," + cuenta_origen + ');'
                     c.execute(consulta)
                     db.commit()
                     consulta = "insert into transaccion (monto, fecha, descripcion, tipo, cuenta) values (" + \
-                               str(sueldo_destino) + ",'" + str(fecha_actual) + "','Pago de cliente','deposito'," + cuenta_destino + ');'
+                               str(sueldo_destino) + ",'" + str(fecha_actual) + "','Pago de sueldo','deposito'," + cuenta_destino + ');'
                     c.execute(consulta)
                     db.commit()
                 return redirect('planillas')
@@ -1531,12 +1531,12 @@ def proveedores(request):
                     db.commit()
                     consulta = "insert into transaccion (monto, fecha, descripcion, tipo, cuenta) values (" + \
                                str(sueldo_destino) + ",'" + str(
-                        fecha_actual) + "','Pago de planilla ','retiro'," + cuenta_origen + ');'
+                        fecha_actual) + "','Pago de proveedores ','retiro'," + cuenta_origen + ');'
                     c.execute(consulta)
                     db.commit()
                     consulta = "insert into transaccion (monto, fecha, descripcion, tipo, cuenta) values (" + \
                                str(sueldo_destino) + ",'" + str(
-                        fecha_actual) + "','Pago de planilla ','deposito'," + cuenta_destino + ');'
+                        fecha_actual) + "','Pago de clientes','deposito'," + cuenta_destino + ');'
                     c.execute(consulta)
                     db.commit()
                 return redirect('proveedores')
