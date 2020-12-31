@@ -1,5 +1,6 @@
 from django import forms
 from .models import *
+from django.core.validators import FileExtensionValidator
 
 
 class UsuarioForm(forms.Form):
@@ -33,3 +34,14 @@ class PrestamoForm(forms.Form):
 
     class Meta:
         fields = ('monto', 'descripcion', 'plazo')
+
+
+class CargaMasivaForm(forms.Form):
+    ruta = forms.FileField(required=True, label='Archivo CSV')
+
+
+class PlanillaForm(forms.Form):
+    cuenta = forms.IntegerField(required=True, label='Numero de cuenta', initial=0)
+    nombre = forms.CharField(required=True, label='Nombre', initial='Nombre')
+    sueldo = forms.DecimalField(decimal_places=2, required=True, label='Monto', initial=0.00)
+    plazo = forms.ChoiceField(choices=[(1, 'quincenal'), (1, 'mensual')])
