@@ -673,8 +673,13 @@ def nuevaTarjeta(request):
                         consulta = "update usuario set tarjetas = " + str(cantidad) + " where codigo = " + cuenta + ";"
                         c.execute(consulta)
                         db.commit()
+                        limite_dolares = 0
+                        if tipo == 'prefepuntos':
+                            limite_dolares = str(round(listatarjeta[0] / 7.63, 2))
+                        elif tipo == 'cashback':
+                            limite_dolares = str(round(listatarjeta[0] / 7.87, 2))
                         mensaje = 'Tarjeta registrada con exito'
-                        dicci = {'form': form, 'mensaje': mensaje, 'tarjeta': retorno[0], 'seguridad': retorno[1]}
+                        dicci = {'form': form, 'mensaje': mensaje, 'tarjeta': retorno[0], 'seguridad': retorno[1], 'dolares': limite_dolares, 'limite': limite}
                         return render(request, 'admins/nuevaTarjeta.html', dicci)
             else:
                 tarjetas = retorno[0]

@@ -661,7 +661,7 @@ def CalcularPrestamo(monto):
         interes = cuota1 * 0.04
         total = cuota1 + interes
         lista1.append(round(monto, 2))
-        lista1.append(12)
+        lista1.append(24)
         lista1.append(round(cuota1, 2))
         lista1.append('4%')
         lista1.append(round(total, 2))
@@ -671,7 +671,7 @@ def CalcularPrestamo(monto):
         interes = cuota1 * 0.0335
         total = cuota1 + interes
         lista1.append(round(monto, 2))
-        lista1.append(12)
+        lista1.append(36)
         lista1.append(round(cuota1, 2))
         lista1.append('3.35%')
         lista1.append(round(total, 2))
@@ -681,7 +681,7 @@ def CalcularPrestamo(monto):
         interes = cuota1 * 0.025
         total = cuota1 + interes
         lista1.append(round(monto, 2))
-        lista1.append(12)
+        lista1.append(48)
         lista1.append(round(cuota1, 2))
         lista1.append('2.5%')
         lista1.append(round(total, 2))
@@ -704,7 +704,7 @@ def CalcularPrestamo(monto):
         interes = cuota1 * 0.0415
         total = cuota1 + interes
         lista1.append(round(monto, 2))
-        lista1.append(12)
+        lista1.append(24)
         lista1.append(round(cuota1, 2))
         lista1.append('4.15%')
         lista1.append(round(total, 2))
@@ -714,7 +714,7 @@ def CalcularPrestamo(monto):
         interes = cuota1 * 0.0350
         total = cuota1 + interes
         lista1.append(round(monto, 2))
-        lista1.append(12)
+        lista1.append(36)
         lista1.append(round(cuota1, 2))
         lista1.append('3.5%')
         lista1.append(round(total, 2))
@@ -724,7 +724,7 @@ def CalcularPrestamo(monto):
         interes = cuota1 * 0.026
         total = cuota1 + interes
         lista1.append(round(monto, 2))
-        lista1.append(12)
+        lista1.append(48)
         lista1.append(round(cuota1, 2))
         lista1.append('2.6%')
         lista1.append(round(total, 2))
@@ -747,7 +747,7 @@ def CalcularPrestamo(monto):
         interes = cuota1 * 0.042
         total = cuota1 + interes
         lista1.append(round(monto, 2))
-        lista1.append(12)
+        lista1.append(24)
         lista1.append(round(cuota1, 2))
         lista1.append('4.20%')
         lista1.append(round(total, 2))
@@ -757,7 +757,7 @@ def CalcularPrestamo(monto):
         interes = cuota1 * 0.0355
         total = cuota1 + interes
         lista1.append(round(monto, 2))
-        lista1.append(12)
+        lista1.append(36)
         lista1.append(round(cuota1, 2))
         lista1.append('3.55%')
         lista1.append(round(total, 2))
@@ -767,7 +767,7 @@ def CalcularPrestamo(monto):
         interes = cuota1 * 0.065
         total = cuota1 + interes
         lista1.append(round(monto, 2))
-        lista1.append(12)
+        lista1.append(48)
         lista1.append(round(cuota1, 2))
         lista1.append('2.65%')
         lista1.append(round(total, 2))
@@ -790,7 +790,7 @@ def CalcularPrestamo(monto):
         interes = cuota1 * 0.0425
         total = cuota1 + interes
         lista1.append(round(monto, 2))
-        lista1.append(12)
+        lista1.append(24)
         lista1.append(round(cuota1, 2))
         lista1.append('4.25%')
         lista1.append(round(total, 2))
@@ -800,7 +800,7 @@ def CalcularPrestamo(monto):
         interes = cuota1 * 0.0360
         total = cuota1 + interes
         lista1.append(round(monto, 2))
-        lista1.append(12)
+        lista1.append(36)
         lista1.append(round(cuota1, 2))
         lista1.append('3.60%')
         lista1.append(round(total, 2))
@@ -810,7 +810,7 @@ def CalcularPrestamo(monto):
         interes = cuota1 * 0.0270
         total = cuota1 + interes
         lista1.append(round(monto, 2))
-        lista1.append(12)
+        lista1.append(48)
         lista1.append(round(cuota1, 2))
         lista1.append('2.70%')
         lista1.append(round(total, 2))
@@ -833,7 +833,7 @@ def CalcularPrestamo(monto):
         interes = cuota1 * 0.0435
         total = cuota1 + interes
         lista1.append(round(monto, 2))
-        lista1.append(12)
+        lista1.append(24)
         lista1.append(round(cuota1, 2))
         lista1.append('4.35%')
         lista1.append(round(total, 2))
@@ -843,7 +843,7 @@ def CalcularPrestamo(monto):
         interes = cuota1 * 0.0370
         total = cuota1 + interes
         lista1.append(round(monto, 2))
-        lista1.append(12)
+        lista1.append(36)
         lista1.append(round(cuota1, 2))
         lista1.append('3.70%')
         lista1.append(round(total, 2))
@@ -853,7 +853,7 @@ def CalcularPrestamo(monto):
         interes = cuota1 * 0.0280
         total = cuota1 + interes
         lista1.append(round(monto, 2))
-        lista1.append(12)
+        lista1.append(48)
         lista1.append(round(cuota1, 2))
         lista1.append('2.80%')
         lista1.append(round(total, 2))
@@ -1387,9 +1387,23 @@ def planillas(request):
                     dicci = {'form': form, 'var2': var2, 'mensaje': 'Cuenta no existe'}
                     return render(request, 'empresarial/planillas.html', dicci)
                 else:
-                    cosulta = "insert into planilla values (" + cuenta + ",'" + nombre + "'," + sueldo + ",1," + usuario + ");"
+                    cosulta = "select * from planilla where cuenta = " + cuenta + " and usuario = " + usuario + ";"
                     c.execute(cosulta)
-                    db.commit()
+                    solicitud = c.fetchone()
+                    if solicitud is None:
+                        cosulta = "insert into planilla values (" + cuenta + ",'" + nombre + "'," + sueldo + ",1," + usuario + ");"
+                        c.execute(cosulta)
+                        db.commit()
+                    else:
+                        cosulta = "update planilla set nombre = '" + nombre + "' where cuenta = " + cuenta + " and usuario = " + usuario + ";"
+                        c.execute(cosulta)
+                        db.commit()
+                        cosulta = "update planilla set sueldo = '" + sueldo + "' where cuenta = " + cuenta + " and usuario = " + usuario + ";"
+                        c.execute(cosulta)
+                        db.commit()
+                    #cosulta = "insert into planilla values (" + cuenta + ",'" + nombre + "'," + sueldo + ",1," + usuario + ");"
+                   # c.execute(cosulta)
+                    #db.commit()
                     var2 = True
                     dicci = {'form': form, 'var2': var2, 'mensaje': 'Cuenta registrada con exito'}
                     return render(request, 'empresarial/planillas.html', dicci)
@@ -1448,9 +1462,20 @@ def lectura(recibido, usuario):
         cuenta = valores[0]
         nombre = valores[1]
         sueldo = valores[2]
-        cosulta = "insert into planilla values (" + cuenta + ",'" + nombre + "'," + sueldo + ",1," + usuario + ");"
+        cosulta = "select * from planilla where cuenta = " + cuenta + " and usuario = " + usuario + ";"
         c.execute(cosulta)
-        db.commit()
+        solicitud = c.fetchone()
+        if solicitud is None:
+            cosulta = "insert into planilla values (" + cuenta + ",'" + nombre + "'," + sueldo + ",1," + usuario + ");"
+            c.execute(cosulta)
+            db.commit()
+        else:
+            cosulta = "update planilla set nombre = '" + nombre + "' where cuenta = " + cuenta + " and usuario = " + usuario + ";"
+            c.execute(cosulta)
+            db.commit()
+            cosulta = "update planilla set sueldo = '" + sueldo + "' where cuenta = " + cuenta + " and usuario = " + usuario + ";"
+            c.execute(cosulta)
+            db.commit()
 
 
 def cargaMasiva(archivo, usuario):

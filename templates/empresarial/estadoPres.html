@@ -22,7 +22,7 @@
   <form method="post">
         {% csrf_token %}
       <div class="divs-derecha">
-        <h4 class="titulos-princ">Solicitudes de Prestamos</h4>
+        <h4 class="titulos-princ">Prestamos</h4>
         <br>
         {% for codigo, monto, descripcion, plazo, estado, cuota, interes, usuario, solicitud in lista %}
         <h4 class="letra-elementos">Prestamo: {{ codigo }}</h4>
