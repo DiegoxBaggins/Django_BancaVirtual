@@ -1,1 +1,1 @@
-# IPC2-Proyecto-12-2020
+Proyecto de una banca virtual desarrollado en el framework de desarrollo Django
